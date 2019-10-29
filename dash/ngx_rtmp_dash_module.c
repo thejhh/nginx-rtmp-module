@@ -498,11 +498,12 @@ ngx_rtmp_dash_write_content_protection(ngx_rtmp_session_t *s,
 
 u_char* concat(u_char *src1, u_char *src2, int start_index)
 {
+    /*
   for(int i = 0; i < NGX_RTMP_DASH_BUFSIZE; i++)
     {
       src1[start_index + i] = src2[i];
       
-    }
+    }*/
     return src1;
 }
 
@@ -659,7 +660,7 @@ ngx_rtmp_dash_write_variant_playlist(ngx_rtmp_session_t *s)
     n = ngx_write_fd(fd, buffer, p - buffer);
     concat(buffr, buffer, buffr_index);
     buffr_index = buffr_index + sizeof(buffer);
-    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0, "buffr '%s' %i",  buffr, buffr_index);
+    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0, "buffr %i",  buffr_index);
     sep = (dacf->nested ? "/" : "-");
     var = dacf->variant->elts;
 
