@@ -511,7 +511,7 @@ static ngx_int_t
 ngx_rtmp_dash_write_variant_playlist(ngx_rtmp_session_t *s)
 {
     char                      *sep;
-    u_char                    *p, *last;
+    u_char                    *p, *last, *start;
     ssize_t                    n;
     ngx_fd_t                   fd, fds;
     struct tm                  tm;
@@ -655,12 +655,13 @@ ngx_rtmp_dash_write_variant_playlist(ngx_rtmp_session_t *s)
                      presentation_delay, presentation_delay_msec
                      );
 
+    start = p
     p = ngx_slprintf(p, last, NGX_RTMP_DASH_MANIFEST_PERIOD);
     
     n = ngx_write_fd(fd, buffer, p - buffer);
     concat(buffr, buffer, buffr_index);
     buffr_index = buffr_index + sizeof(buffer);
-    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0, "buffr %i",  buffr_index);
+    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0, "buffr %d, %i",  *start, buffr_index);
     sep = (dacf->nested ? "/" : "-");
     var = dacf->variant->elts;
 
