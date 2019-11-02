@@ -529,7 +529,7 @@ static ngx_int_t
 ngx_rtmp_dash_write_variant_playlist(ngx_rtmp_session_t *s)
 {
     char                      *sep;
-    u_char                    *p, *last, *start;
+    u_char                    *p, *last;
     ssize_t                    n;
     ngx_fd_t                   fd, fds;
     struct tm                  tm;
@@ -555,9 +555,9 @@ ngx_rtmp_dash_write_variant_playlist(ngx_rtmp_session_t *s)
     static u_char              frame_rate[(NGX_INT_T_LEN * 2) + 2];
     static u_char              seg_path[NGX_MAX_PATH + 1];
 
-    static int                TOTAL_BUFFER_PARTS = 10;
+    // static int                TOTAL_BUFFER_PARTS = 10;
     // u_char                    buffr[NGX_RTMP_DASH_BUFSIZE * TOTAL_BUFFER_PARTS];
-    int                       buffr_index =0;
+    // int                       buffr_index =0;
 
     dacf = ngx_rtmp_get_module_app_conf(s, ngx_rtmp_dash_module);
     ctx = ngx_rtmp_get_module_ctx(s, ngx_rtmp_dash_module);
@@ -673,13 +673,13 @@ ngx_rtmp_dash_write_variant_playlist(ngx_rtmp_session_t *s)
                      presentation_delay, presentation_delay_msec
                      );
 
-    start = p;
+    // start = p;
     p = ngx_slprintf(p, last, NGX_RTMP_DASH_MANIFEST_PERIOD);
     
     n = ngx_write_fd(fd, buffer, p - buffer);
     // concat(buffr, buffer, buffr_index);
     // buffr_index = buffr_index + sizeof(buffer);
-    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0, "buffr %d, %i %i",  *start, buffr_index, TOTAL_BUFFER_PARTS);
+    // ngx_log_error(NGX_LOG_ERR, s->connection->log, 0, "buffr %d, %i %i",  *start, buffr_index, TOTAL_BUFFER_PARTS);
     sep = (dacf->nested ? "/" : "-");
     var = dacf->variant->elts;
 
