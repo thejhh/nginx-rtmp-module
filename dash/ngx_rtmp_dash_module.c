@@ -1267,7 +1267,8 @@ ngx_rtmp_dash_write_init_segments(ngx_rtmp_session_t *s, ngx_rtmp_cenc_drm_info_
     }
 
     ngx_close_file(fd);
-
+    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
+                      "Akamia: '%s'", send_akamia(ctx->stream.data));
     /* init audio */
 
     *ngx_sprintf(ctx->stream.data + ctx->stream.len, "init.m4a") = 0;
