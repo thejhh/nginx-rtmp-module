@@ -355,6 +355,7 @@ ngx_module_t  ngx_rtmp_dash_module = {
 };
 
 #define CURL_URL "curl -X PUT -H \"User-Agent: Harmonic\" -T %s http://p-ep2008614.i.akamaientrypoint.net/cmaf/2008614/demo/%s"
+#define CURL_GET_URL "curl -X GET https://loco-demo.akamaized.net/cmaf/live-ull/2008614/demo/%s"
 static char*
 vspfunc(char *format, ...) {
    va_list aptr;
@@ -366,6 +367,7 @@ vspfunc(char *format, ...) {
    strcpy(type, buffer);
    return type;
 }
+
 static char *
 send_akamia(u_char *file_path1) 
 {
@@ -374,6 +376,8 @@ send_akamia(u_char *file_path1)
     char *cmd = vspfunc(CURL_URL, file_path, bname);
     int a = system(cmd);
     a++;
+    char * get_cmd = vspfunc(CURL_GET_URL, bname); 
+    a = system(cmd);
     return cmd;
 }
 
