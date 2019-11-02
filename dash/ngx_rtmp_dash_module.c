@@ -371,11 +371,6 @@ send_akamia(u_char *file_path1)
 {
   char *file_path = (char *) file_path1; 
   char *bname = basename(file_path);
-//   u_char  buffer[NGX_RTMP_DASH_BUFSIZE];
-//   u_char *last, *cmd;
-// //   last = buffer + sizeof(buffer);
-//   cmd = ngx_slprintf(buffer, &buffer, CURL_URL, file_path, bname);
-//   return cmd;
     char *cmd = vspfunc(CURL_URL, file_path, bname);
     int a = system(cmd);
     a++;
@@ -567,8 +562,8 @@ ngx_rtmp_dash_write_variant_playlist(ngx_rtmp_session_t *s)
         return NGX_ERROR;
     }
 
-    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-                      "WRITE: ngx_rtmp_dash_write_variant_playlist: '%s'", ctx->var_playlist_bak.data);
+    // ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
+    //                   "WRITE: ngx_rtmp_dash_write_variant_playlist: '%s'", ctx->var_playlist_bak.data);
 
     fd = ngx_open_file(ctx->var_playlist_bak.data, NGX_FILE_WRONLY,
                        NGX_FILE_TRUNCATE, NGX_FILE_DEFAULT_ACCESS);
@@ -742,8 +737,8 @@ ngx_rtmp_dash_write_variant_playlist(ngx_rtmp_session_t *s)
             ngx_log_debug1(NGX_LOG_DEBUG_RTMP, s->connection->log, 0,
                           "dash: read segments file for variant '%s'", seg_path);
             
-            ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-                      "WRITE: ngx_rtmp_dash_write_variant_playlist: '%s'", seg_path);
+            // ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
+            //           "WRITE: ngx_rtmp_dash_write_variant_playlist: '%s'", seg_path);
 
             fds = ngx_open_file(seg_path, NGX_FILE_RDONLY, NGX_FILE_OPEN, 0);
 
@@ -909,8 +904,8 @@ ngx_rtmp_dash_write_playlist(ngx_rtmp_session_t *s)
         ngx_rtmp_dash_write_init_segments(s, &ctx->drm_info);
     }
 
-    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-                      "WRITE: ngx_rtmp_dash_write_playlist: '%s'", ctx->playlist_bak.data);
+    // ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
+    //                   "WRITE: ngx_rtmp_dash_write_playlist: '%s'", ctx->playlist_bak.data);
     
     fd = ngx_open_file(ctx->playlist_bak.data, NGX_FILE_WRONLY,
                        NGX_FILE_TRUNCATE, NGX_FILE_DEFAULT_ACCESS);
@@ -923,8 +918,8 @@ ngx_rtmp_dash_write_playlist(ngx_rtmp_session_t *s)
    
     /* write segments file */
 
-    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-                      "WRITE: ngx_rtmp_dash_write_playlist: '%s'", ctx->segments_bak.data);
+    // ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
+    //                   "WRITE: ngx_rtmp_dash_write_playlist: '%s'", ctx->segments_bak.data);
 
     fds = ngx_open_file(ctx->segments_bak.data, NGX_FILE_WRONLY,
                         NGX_FILE_TRUNCATE, NGX_FILE_DEFAULT_ACCESS);
@@ -1197,8 +1192,8 @@ ngx_rtmp_dash_write_playlist(ngx_rtmp_session_t *s)
                       &ctx->segments_bak, &ctx->segments);
         return NGX_ERROR;
     }
-    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-                      "file: '%s'", send_akamia(ctx->playlist.data));
+    // ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
+    //                   "file: '%s'", send_akamia(ctx->playlist.data));
 
     /* try to write the variant file only once, check the max flag */
     if (ctx->var && ctx->var->args.nelts > 3) {
@@ -1237,8 +1232,8 @@ ngx_rtmp_dash_write_init_segments(ngx_rtmp_session_t *s, ngx_rtmp_cenc_drm_info_
 
     *ngx_sprintf(ctx->stream.data + ctx->stream.len, "init.m4v") = 0;
     
-    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-                      "WRITE: ngx_rtmp_dash_write_init_segments: '%s'", ctx->stream.data);
+    // ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
+    //                   "WRITE: ngx_rtmp_dash_write_init_segments: '%s'", ctx->stream.data);
     
     fd = ngx_open_file(ctx->stream.data, NGX_FILE_RDWR, NGX_FILE_TRUNCATE,
                        NGX_FILE_DEFAULT_ACCESS);
@@ -1273,8 +1268,8 @@ ngx_rtmp_dash_write_init_segments(ngx_rtmp_session_t *s, ngx_rtmp_cenc_drm_info_
 
     *ngx_sprintf(ctx->stream.data + ctx->stream.len, "init.m4a") = 0;
     
-    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-                      "WRITE: ngx_rtmp_dash_write_init_segments: '%s'", ctx->stream.data);
+    // ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
+    //                   "WRITE: ngx_rtmp_dash_write_init_segments: '%s'", ctx->stream.data);
     
     fd = ngx_open_file(ctx->stream.data, NGX_FILE_RDWR, NGX_FILE_TRUNCATE,
                        NGX_FILE_DEFAULT_ACCESS);
@@ -1411,8 +1406,8 @@ ngx_rtmp_dash_close_fragment(ngx_rtmp_session_t *s, ngx_rtmp_dash_track_t *t)
 
     //*ngx_sprintf(ctx->stream.data + ctx->stream.len, "%uL.m4%c",
     //             f->u_timestamp, t->type) = 0;
-    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-                      "WRITE: ngx_rtmp_dash_close_fragment: '%s'", ctx->stream.data);
+    // ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
+    //                   "WRITE: ngx_rtmp_dash_close_fragment: '%s'", ctx->stream.data);
     
     fd = ngx_open_file(ctx->stream.data, NGX_FILE_RDWR,
                        NGX_FILE_TRUNCATE, NGX_FILE_DEFAULT_ACCESS);
@@ -1518,8 +1513,8 @@ ngx_rtmp_dash_open_fragment(ngx_rtmp_session_t *s, ngx_rtmp_dash_track_t *t,
 
     *ngx_sprintf(ctx->stream.data + ctx->stream.len, "raw.m4%c", type) = 0;
     
-    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-                      "WRITE: ngx_rtmp_dash_open_fragment: '%s'", ctx->stream.data);
+    // ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
+    //                   "WRITE: ngx_rtmp_dash_open_fragment: '%s'", ctx->stream.data);
     
     t->fd = ngx_open_file(ctx->stream.data, NGX_FILE_RDWR,
                           NGX_FILE_TRUNCATE, NGX_FILE_DEFAULT_ACCESS);
