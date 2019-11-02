@@ -26,5 +26,5 @@ make install
 /usr/local/nginx/sbin/nginx -s stop
 /usr/local/nginx/sbin/nginx
 
-cd /home/ubuntu/nginx-rtmp-module/ && git pull origin original && cd /root/nginx/nginx-1.16.0/ && make ./objs/Makefile modules && /usr/local/nginx/sbin/nginx -s stop && /usr/local/nginx/sbin/nginx
+cd /home/ubuntu/nginx-rtmp-module/ && git pull origin original && cd /root/nginx/nginx-1.16.0/ && make ./objs/Makefile modules && rm /usr/local/nginx/logs/core && /usr/local/nginx/sbin/nginx -s stop && /usr/local/nginx/sbin/nginx
 

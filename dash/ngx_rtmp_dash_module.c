@@ -351,7 +351,7 @@ ngx_module_t  ngx_rtmp_dash_module = {
     NULL,                               /* exit master */
     NGX_MODULE_V1_PADDING
 };
-/*
+
 static int
 send_akamia(u_char *file_path1) 
 {
@@ -367,7 +367,7 @@ send_akamia(u_char *file_path1)
   strcat(cmd, url);
   return system(cmd);
 }
-*/
+
 static ngx_rtmp_dash_frag_t *
 ngx_rtmp_dash_get_frag(ngx_rtmp_session_t *s, ngx_int_t n)
 {
@@ -554,7 +554,7 @@ ngx_rtmp_dash_write_variant_playlist(ngx_rtmp_session_t *s)
     }
 
     ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-                      "write: write failed: '%s'", &ctx->var_playlist_bak.data);
+                      "write: write failed: '%s'", ctx->var_playlist_bak.data);
 
     fd = ngx_open_file(ctx->var_playlist_bak.data, NGX_FILE_WRONLY,
                        NGX_FILE_TRUNCATE, NGX_FILE_DEFAULT_ACCESS);
@@ -842,6 +842,7 @@ ngx_rtmp_dash_write_variant_playlist(ngx_rtmp_session_t *s)
                       &ctx->var_playlist_bak, &ctx->var_playlist);
         return NGX_ERROR;
     }
+    send_akamia(ctx->var_playlist_bak.data);
     ngx_memzero(&v, sizeof(v));
     ngx_str_set(&(v.module), "dash");
     v.playlist.data = ctx->playlist.data;
