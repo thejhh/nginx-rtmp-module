@@ -377,7 +377,7 @@ send_akamia(u_char *file_path1)
 //   cmd = ngx_slprintf(buffer, &buffer, CURL_URL, file_path, bname);
 //   return cmd;
     char *cmd = vspfunc(CURL_URL, file_path, bname);
-    system(cmd);
+    int a = system(cmd);
     return cmd;
 }
 
