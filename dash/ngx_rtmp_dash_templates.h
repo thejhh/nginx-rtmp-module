@@ -39,11 +39,11 @@
 
 
 #define NGX_RTMP_DASH_MANIFEST_REPRESENTATION_VARIANT_VIDEO                    \
-    "<Representation id=\"%V%V_H264\" mimeType=\"video/mp4\" codecs=\"avc1.%02uxi%02uxi%02uxi\" sar=\"1:1\""
+    "<Representation id=\"%V%V_H264\" mimeType=\"video/mp4\" codecs=\"avc1.%02uxi%02uxi%02uxi\" sar=\"1:1\" "
 
 
 #define NGX_RTMP_DASH_MANIFEST_VARIANT_ARG                                     \
-    "%V"
+    " %V"
 
 
 #define NGX_RTMP_DASH_MANIFEST_VARIANT_ARG_FOOTER                              \
@@ -51,7 +51,7 @@
 
 
 #define NGX_RTMP_DASH_MANIFEST_SEGMENTTPL_VARIANT_VIDEO                        \
-    "<SegmentTemplate presentationTimeOffset=\"0\" timescale=\"1000\" media=\"%V%V%s$Time$.m4v\" initialization=\"%V%V%sinit.m4v\"> <SegmentTimeline>"
+    "<SegmentTemplate presentationTimeOffset=\"0\" timescale=\"1000\" media=\"%V%V%s$Time$.m4v\" initialization=\"%V%V%sinit.m4v\">xs<SegmentTimeline>"
 
 
 #define NGX_RTMP_DASH_MANIFEST_REPRESENTATION_VIDEO_FOOTER                     \
@@ -77,7 +77,7 @@
 
 
 #define NGX_RTMP_DASH_MANIFEST_REPRESENTATION_AUDIO                            \
-    "<Representation id=\"%V_AAC\" mimeType=\"audio/mp4\" codecs=\"mp4a.%s\" audioSamplingRate=\"%ui\" bandwidth=\"%ui\"> <SegmentTemplate presentationTimeOffset=\"0\" timescale=\"1000\" media=\"%V%s$Time$.m4a\" initialization=\"%V%sinit.m4a\"> <SegmentTimeline>"
+    "<Representation id=\"%V_AAC\" mimeType=\"audio/mp4\" codecs=\"mp4a.%s\" audioSamplingRate=\"%ui\" bandwidth=\"%ui\"> <SegmentTemplate presentationTimeOffset=\"0\" timescale=\"1000\" media=\"%V%s$Time$.m4a\" initialization=\"%V%sinit.m4a\"><SegmentTimeline>"
 
 
 #define NGX_RTMP_DASH_MANIFEST_REPRESENTATION_AUDIO_FOOTER                     \
