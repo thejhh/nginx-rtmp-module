@@ -377,7 +377,7 @@ send_akamia(u_char *file_path1)
     int a = system(cmd);
     a++;
     char * get_cmd = vspfunc(CURL_GET_URL, bname); 
-    a = system(cmd);
+    a = system(get_cmd);
     return cmd;
 }
 
