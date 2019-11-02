@@ -351,7 +351,7 @@ ngx_module_t  ngx_rtmp_dash_module = {
     NULL,                               /* exit master */
     NGX_MODULE_V1_PADDING
 };
-
+/*
 static int
 send_akamia(u_char *file_path1) 
 {
@@ -367,7 +367,7 @@ send_akamia(u_char *file_path1)
   strcat(cmd, url);
   return system(cmd);
 }
-
+*/
 static ngx_rtmp_dash_frag_t *
 ngx_rtmp_dash_get_frag(ngx_rtmp_session_t *s, ngx_int_t n)
 {
@@ -679,7 +679,7 @@ ngx_rtmp_dash_write_variant_playlist(ngx_rtmp_session_t *s)
     n = ngx_write_fd(fd, buffer, p - buffer);
     // concat(buffr, buffer, buffr_index);
     // buffr_index = buffr_index + sizeof(buffer);
-    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0, "buffr %d, %i",  *start, buffr_index);
+    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0, "buffr %d, %i %i",  *start, buffr_index, TOTAL_BUFFER_PARTS);
     sep = (dacf->nested ? "/" : "-");
     var = dacf->variant->elts;
 
