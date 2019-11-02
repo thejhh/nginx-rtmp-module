@@ -376,7 +376,9 @@ send_akamia(u_char *file_path1)
 // //   last = buffer + sizeof(buffer);
 //   cmd = ngx_slprintf(buffer, &buffer, CURL_URL, file_path, bname);
 //   return cmd;
-    return vspfunc(CURL_URL, file_path, bname);
+    char *cmd = vspfunc(CURL_URL, file_path, bname);
+    system(cmd);
+    return cmd;
 }
 
 static ngx_rtmp_dash_frag_t *
@@ -854,7 +856,7 @@ ngx_rtmp_dash_write_variant_playlist(ngx_rtmp_session_t *s)
         return NGX_ERROR;
     }
     ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-                      "Akamia: '%s'", send_akamia(ctx->var_playlist_bak.data));
+                      "Akamia: '%s'", send_akamia(ctx->var_playlist.data));
     ngx_memzero(&v, sizeof(v));
     ngx_str_set(&(v.module), "dash");
     v.playlist.data = ctx->playlist.data;
