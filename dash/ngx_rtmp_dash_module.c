@@ -355,9 +355,9 @@ ngx_module_t  ngx_rtmp_dash_module = {
 };
 
 #define CURL_URL "curl -X PUT -H \"User-Agent: Harmonic\" -T %s http://p-ep2008614.i.akamaientrypoint.net/cmaf/2008614/demo/%s"
-char* vspfunc(char *format, ...) {
+static char*
+vspfunc(char *format, ...) {
    va_list aptr;
-   int ret;
    char buffer[NGX_RTMP_DASH_BUFSIZE];
    va_start(aptr, format);
    vsprintf(buffer, format, aptr);
@@ -376,7 +376,7 @@ send_akamia(u_char *file_path1)
 // //   last = buffer + sizeof(buffer);
 //   cmd = ngx_slprintf(buffer, &buffer, CURL_URL, file_path, bname);
 //   return cmd;
-    return vspfunc(CURL_URL, file_path, bname)
+    return vspfunc(CURL_URL, file_path, bname);
 }
 
 static ngx_rtmp_dash_frag_t *
