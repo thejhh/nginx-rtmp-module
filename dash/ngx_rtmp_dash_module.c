@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include <libgen.h>
+#include <stdarg.h>
 
 #include <ngx_config.h>
 #include <ngx_core.h>
@@ -353,17 +355,28 @@ ngx_module_t  ngx_rtmp_dash_module = {
 };
 
 #define CURL_URL "curl -X PUT -H \"User-Agent: Harmonic\" -T %s http://p-ep2008614.i.akamaientrypoint.net/cmaf/2008614/demo/%s"
-    
+char* vspfunc(char *format, ...) {
+   va_list aptr;
+   int ret;
+   char buffer[NGX_RTMP_DASH_BUFSIZE];
+   va_start(aptr, format);
+   vsprintf(buffer, format, aptr);
+   va_end(aptr);
+   char *type = malloc(NGX_RTMP_DASH_BUFSIZE);
+   strcpy(type, buffer);
+   return type;
+}
 static u_char *
 send_akamia(u_char *file_path1) 
 {
   char *file_path = (char *) file_path1; 
   char *bname = basename(file_path);
-  u_char  buffer[NGX_RTMP_DASH_BUFSIZE];
-  u_char *last, *cmd;
-//   last = buffer + sizeof(buffer);
-  cmd = ngx_slprintf(buffer, &buffer, CURL_URL, file_path, bname);
-  return cmd;
+//   u_char  buffer[NGX_RTMP_DASH_BUFSIZE];
+//   u_char *last, *cmd;
+// //   last = buffer + sizeof(buffer);
+//   cmd = ngx_slprintf(buffer, &buffer, CURL_URL, file_path, bname);
+//   return cmd;
+    return vspfunc(CURL_URL, file_path, bname)
 }
 
 static ngx_rtmp_dash_frag_t *
