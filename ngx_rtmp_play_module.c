@@ -905,7 +905,7 @@ ngx_rtmp_play_next_entry(ngx_rtmp_session_t *s, ngx_rtmp_play_t *v)
                          pe->root, v->name + ctx->pfx_size, &ctx->sfx);
         *p = 0;
 
-        ngx_log_error(NGX_LOG_ERR, log, 0,
+        ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
                       "WRITE: ngx_rtmp_play_next_entry: '%s'", path);
 
         ctx->file.fd = ngx_open_file(path, NGX_FILE_RDONLY, NGX_FILE_OPEN,
@@ -923,7 +923,7 @@ ngx_rtmp_play_next_entry(ngx_rtmp_session_t *s, ngx_rtmp_play_t *v)
 
             ngx_log_error(NGX_LOG_ERR, log, 0,
                       "WRITE: ngx_rtmp_play_next_entry: '%s'", path);
-                      
+
             ctx->file.fd = ngx_open_file(path, NGX_FILE_RDONLY, NGX_FILE_OPEN,
                                          NGX_FILE_DEFAULT_ACCESS);
         }
