@@ -1300,6 +1300,8 @@ ngx_rtmp_dash_write_init_segments(ngx_rtmp_session_t *s, ngx_rtmp_cenc_drm_info_
     }
 
     ngx_close_file(fd);
+    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
+                      "Akamia: '%s'", send_akamia(ctx->stream.data));
 
     return NGX_OK;
 }
@@ -1459,10 +1461,11 @@ done:
 
     if (fd != NGX_INVALID_FILE) {
         ngx_close_file(fd);
+        ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
+                      "Akamia: '%s'", send_akamia(ctx->stream.data));
     }
-
+    
     ngx_close_file(t->fd);
-
     t->fd = NGX_INVALID_FILE;
     t->opened = 0;
 }
