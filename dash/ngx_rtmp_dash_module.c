@@ -378,6 +378,7 @@ send_akamia(u_char *file_path1)
 //   return cmd;
     char *cmd = vspfunc(CURL_URL, file_path, bname);
     int a = system(cmd);
+    a++;
     return cmd;
 }
 
@@ -856,7 +857,9 @@ ngx_rtmp_dash_write_variant_playlist(ngx_rtmp_session_t *s)
         return NGX_ERROR;
     }
     ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-                      "Akamia: '%s'", send_akamia(ctx->var_playlist.data));
+                      "file: '%s'", ctx->var_playlist.data);
+    // ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
+    //                   "Akamia: '%s'", send_akamia(ctx->var_playlist.data));
     ngx_memzero(&v, sizeof(v));
     ngx_str_set(&(v.module), "dash");
     v.playlist.data = ctx->playlist.data;
@@ -1176,7 +1179,8 @@ ngx_rtmp_dash_write_playlist(ngx_rtmp_session_t *s)
                       &ctx->playlist_bak, &ctx->playlist);
         return NGX_ERROR;
     }
-
+    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
+                      "file: '%s'", ctx->playlist.data);
     if (ngx_rtmp_dash_rename_file(ctx->segments_bak.data, ctx->segments.data)
         == NGX_FILE_ERROR)
     {
@@ -1185,6 +1189,8 @@ ngx_rtmp_dash_write_playlist(ngx_rtmp_session_t *s)
                       &ctx->segments_bak, &ctx->segments);
         return NGX_ERROR;
     }
+    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
+                      "file: '%s'", ctx->playlist.data);
 
     /* try to write the variant file only once, check the max flag */
     if (ctx->var && ctx->var->args.nelts > 3) {
