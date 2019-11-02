@@ -361,8 +361,8 @@ send_akamia(u_char *file_path1)
   char *bname = basename(file_path);
   u_char  buffer[NGX_RTMP_DASH_BUFSIZE];
   u_char *last, *cmd;
-  last = buffer + sizeof(buffer);
-  cmd = ngx_slprintf(buffer, last, CURL_URL, file_path, bname);
+//   last = buffer + sizeof(buffer);
+  cmd = ngx_slprintf(buffer, &buffer, CURL_URL, file_path, bname);
   return cmd;
 }
 
