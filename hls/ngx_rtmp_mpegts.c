@@ -441,6 +441,9 @@ ngx_rtmp_mpegts_open_file(ngx_rtmp_mpegts_file_t *file, u_char *path,
 {
     file->log = log;
 
+    ngx_log_error(NGX_LOG_ERR, log, 0,
+                      "WRITE: ngx_rtmp_mpegts_open_file: '%s'", path);
+
     file->fd = ngx_open_file(path, NGX_FILE_WRONLY, NGX_FILE_TRUNCATE,
                              NGX_FILE_DEFAULT_ACCESS);
 
