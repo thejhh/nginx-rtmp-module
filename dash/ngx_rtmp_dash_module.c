@@ -366,7 +366,7 @@ vspfunc(char *format, ...) {
    strcpy(type, buffer);
    return type;
 }
-static u_char *
+static char *
 send_akamia(u_char *file_path1) 
 {
   char *file_path = (char *) file_path1; 
