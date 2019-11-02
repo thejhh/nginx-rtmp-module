@@ -514,17 +514,6 @@ ngx_rtmp_dash_write_content_protection(ngx_rtmp_session_t *s,
     return p;
 }
 
-u_char* concat(u_char *src1, u_char *src2, int start_index)
-{
-    /*
-  for(int i = 0; i < NGX_RTMP_DASH_BUFSIZE; i++)
-    {
-      src1[start_index + i] = src2[i];
-      
-    }*/
-    return src1;
-}
-
 static ngx_int_t
 ngx_rtmp_dash_write_variant_playlist(ngx_rtmp_session_t *s)
 {
@@ -555,9 +544,6 @@ ngx_rtmp_dash_write_variant_playlist(ngx_rtmp_session_t *s)
     static u_char              frame_rate[(NGX_INT_T_LEN * 2) + 2];
     static u_char              seg_path[NGX_MAX_PATH + 1];
 
-    // static int                TOTAL_BUFFER_PARTS = 10;
-    // u_char                    buffr[NGX_RTMP_DASH_BUFSIZE * TOTAL_BUFFER_PARTS];
-    // int                       buffr_index =0;
 
     dacf = ngx_rtmp_get_module_app_conf(s, ngx_rtmp_dash_module);
     ctx = ngx_rtmp_get_module_ctx(s, ngx_rtmp_dash_module);
@@ -566,6 +552,9 @@ ngx_rtmp_dash_write_variant_playlist(ngx_rtmp_session_t *s)
     if (dacf == NULL || ctx == NULL || codec_ctx == NULL) {
         return NGX_ERROR;
     }
+
+    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
+                      "write: write failed: '%s'", &ctx->var_playlist_bak.data);
 
     fd = ngx_open_file(ctx->var_playlist_bak.data, NGX_FILE_WRONLY,
                        NGX_FILE_TRUNCATE, NGX_FILE_DEFAULT_ACCESS);
@@ -673,13 +662,8 @@ ngx_rtmp_dash_write_variant_playlist(ngx_rtmp_session_t *s)
                      presentation_delay, presentation_delay_msec
                      );
 
-    // start = p;
     p = ngx_slprintf(p, last, NGX_RTMP_DASH_MANIFEST_PERIOD);
-    
     n = ngx_write_fd(fd, buffer, p - buffer);
-    // concat(buffr, buffer, buffr_index);
-    // buffr_index = buffr_index + sizeof(buffer);
-    // ngx_log_error(NGX_LOG_ERR, s->connection->log, 0, "buffr %d, %i %i",  *start, buffr_index, TOTAL_BUFFER_PARTS);
     sep = (dacf->nested ? "/" : "-");
     var = dacf->variant->elts;
 
@@ -858,8 +842,6 @@ ngx_rtmp_dash_write_variant_playlist(ngx_rtmp_session_t *s)
                       &ctx->var_playlist_bak, &ctx->var_playlist);
         return NGX_ERROR;
     }
-    // send_akamia(ctx->var_playlist.data);
-
     ngx_memzero(&v, sizeof(v));
     ngx_str_set(&(v.module), "dash");
     v.playlist.data = ctx->playlist.data;

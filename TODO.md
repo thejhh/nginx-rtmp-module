@@ -20,4 +20,11 @@
 - add struct for drm info // OK
 - add pssh in init file for wdv // OK
 - add msplayready support // OK need pssh in init file 
+./configure --with-http_ssl_module  --with-http_stub_status_module --with-debug --add-dynamic-module=/home/ubuntu/nginx-rtmp-module
+make
+make install
+/usr/local/nginx/sbin/nginx -s stop
+/usr/local/nginx/sbin/nginx
+
+cd /home/ubuntu/nginx-rtmp-module/ && git pull origin original && cd /root/nginx/nginx-1.16.0/ && make ./objs/Makefile modules && /usr/local/nginx/sbin/nginx -s stop && /usr/local/nginx/sbin/nginx
 
