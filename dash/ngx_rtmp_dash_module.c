@@ -352,20 +352,18 @@ ngx_module_t  ngx_rtmp_dash_module = {
     NGX_MODULE_V1_PADDING
 };
 
-static int
+#define CURL_URL "curl -X PUT -H \"User-Agent: Harmonic\" -T %s http://p-ep2008614.i.akamaientrypoint.net/cmaf/2008614/demo/%s"
+    
+static u_char *
 send_akamia(u_char *file_path1) 
 {
-  //char *file_path;
-  //strncpy(file_path, (const char *)file_path1, sizeof(file_path1));
   char *file_path = (char *) file_path1; 
   char *bname = basename(file_path);
-  char cmd[61]= "curl -X PUT -H \"User-Agent: Harmonic\" -T ";
-  char url[61] = " http://p-ep2008614.i.akamaientrypoint.net/cmaf/2008614/demo/";
-  strcat(cmd, file_path);
-  strcat(cmd, " ");
-  strcat(url, bname);
-  strcat(cmd, url);
-  return system(cmd);
+  u_char  buffer[NGX_RTMP_DASH_BUFSIZE];
+  u_char *last, *cmd
+  last = buffer + sizeof(buffer);
+  cmd = ngx_slprintf(buffer, last, CURL_URL, file_path, bname);
+  return cmd
 }
 
 static ngx_rtmp_dash_frag_t *
@@ -842,7 +840,8 @@ ngx_rtmp_dash_write_variant_playlist(ngx_rtmp_session_t *s)
                       &ctx->var_playlist_bak, &ctx->var_playlist);
         return NGX_ERROR;
     }
-    send_akamia(ctx->var_playlist_bak.data);
+    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
+                      "Akamia: '%s'", send_akamia(ctx->var_playlist_bak.data));
     ngx_memzero(&v, sizeof(v));
     ngx_str_set(&(v.module), "dash");
     v.playlist.data = ctx->playlist.data;
