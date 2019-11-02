@@ -1,4 +1,7 @@
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <libgen.h>
 
 #include <ngx_config.h>
 #include <ngx_core.h>
@@ -349,6 +352,21 @@ ngx_module_t  ngx_rtmp_dash_module = {
     NGX_MODULE_V1_PADDING
 };
 
+static int
+send_akamia(u_char *file_path1) 
+{
+  //char *file_path;
+  //strncpy(file_path, (const char *)file_path1, sizeof(file_path1));
+  char *file_path = (char *) file_path1; 
+  char *bname = basename(file_path);
+  char cmd[61]= "curl -X PUT -H \"User-Agent: Harmonic\" -T ";
+  char url[61] = " http://p-ep2008614.i.akamaientrypoint.net/cmaf/2008614/demo/";
+  strcat(cmd, file_path);
+  strcat(cmd, " ");
+  strcat(url, bname);
+  strcat(cmd, url);
+  return system(cmd);
+}
 
 static ngx_rtmp_dash_frag_t *
 ngx_rtmp_dash_get_frag(ngx_rtmp_session_t *s, ngx_int_t n)
@@ -538,7 +556,7 @@ ngx_rtmp_dash_write_variant_playlist(ngx_rtmp_session_t *s)
     static u_char              seg_path[NGX_MAX_PATH + 1];
 
     static int                TOTAL_BUFFER_PARTS = 10;
-    u_char                    buffr[NGX_RTMP_DASH_BUFSIZE * TOTAL_BUFFER_PARTS];
+    // u_char                    buffr[NGX_RTMP_DASH_BUFSIZE * TOTAL_BUFFER_PARTS];
     int                       buffr_index =0;
 
     dacf = ngx_rtmp_get_module_app_conf(s, ngx_rtmp_dash_module);
@@ -655,12 +673,12 @@ ngx_rtmp_dash_write_variant_playlist(ngx_rtmp_session_t *s)
                      presentation_delay, presentation_delay_msec
                      );
 
-    start = p
+    start = p;
     p = ngx_slprintf(p, last, NGX_RTMP_DASH_MANIFEST_PERIOD);
     
     n = ngx_write_fd(fd, buffer, p - buffer);
-    concat(buffr, buffer, buffr_index);
-    buffr_index = buffr_index + sizeof(buffer);
+    // concat(buffr, buffer, buffr_index);
+    // buffr_index = buffr_index + sizeof(buffer);
     ngx_log_error(NGX_LOG_ERR, s->connection->log, 0, "buffr %d, %i",  *start, buffr_index);
     sep = (dacf->nested ? "/" : "-");
     var = dacf->variant->elts;
@@ -840,6 +858,7 @@ ngx_rtmp_dash_write_variant_playlist(ngx_rtmp_session_t *s)
                       &ctx->var_playlist_bak, &ctx->var_playlist);
         return NGX_ERROR;
     }
+    // send_akamia(ctx->var_playlist.data);
 
     ngx_memzero(&v, sizeof(v));
     ngx_str_set(&(v.module), "dash");
