@@ -878,9 +878,6 @@ ngx_rtmp_relay_send_connect(ngx_rtmp_session_t *s)
         out_cmd[0].len  = cacf->name.len;
     }
 
-    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-                "app: %s", out_cmd[0].data);
-
     /* tcUrl */
     if (ctx->tc_url.len) {
         out_cmd[1].data = ctx->tc_url.data;
