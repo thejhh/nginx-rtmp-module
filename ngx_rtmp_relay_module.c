@@ -878,6 +878,9 @@ ngx_rtmp_relay_send_connect(ngx_rtmp_session_t *s)
         out_cmd[0].len  = cacf->name.len;
     }
 
+    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
+                "app: %s", out_cmd[0].data);
+
     /* tcUrl */
     if (ctx->tc_url.len) {
         out_cmd[1].data = ctx->tc_url.data;
@@ -1727,8 +1730,7 @@ ngx_rtmp_relay_push_pull(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
         NGX_RTMP_RELAY_NUM_PAR("live",        live);
         NGX_RTMP_RELAY_NUM_PAR("start",       start);
         NGX_RTMP_RELAY_NUM_PAR("stop",        stop);
-        ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-                    "%s %s %s %s %s %s %s %s", app, name, tc_url, page_url, swf_url, flash_ver, play_path);
+        
 #undef NGX_RTMP_RELAY_STR_PAR
 #undef NGX_RTMP_RELAY_NUM_PAR
 
@@ -1795,7 +1797,6 @@ ngx_rtmp_relay_push_pull(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
     }
 
     *t = target;
-
     return NGX_CONF_OK;
 }
 
