@@ -1727,7 +1727,8 @@ ngx_rtmp_relay_push_pull(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
         NGX_RTMP_RELAY_NUM_PAR("live",        live);
         NGX_RTMP_RELAY_NUM_PAR("start",       start);
         NGX_RTMP_RELAY_NUM_PAR("stop",        stop);
-
+        ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
+                    "%s %s %s %s %s %s %s %s", app, name, tc_url, page_url, swf_url, flash_ver, play_path);
 #undef NGX_RTMP_RELAY_STR_PAR
 #undef NGX_RTMP_RELAY_NUM_PAR
 
