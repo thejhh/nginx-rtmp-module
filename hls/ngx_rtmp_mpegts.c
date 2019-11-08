@@ -458,7 +458,8 @@ ngx_rtmp_mpegts_open_file(ngx_rtmp_mpegts_file_t *file, u_char *path,
         ngx_close_file(file->fd);
         return NGX_ERROR;
     }
-
+    ngx_log_error(NGX_LOG_ERR, log, ngx_errno,
+                      "hls: ngx_rtmp_mpegts_open_file %s", path);
     return NGX_OK;
 }
 
