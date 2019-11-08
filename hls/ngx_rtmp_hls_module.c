@@ -3,6 +3,12 @@
  * Copyright (C) Roman Arutyunyan
  */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+#include <libgen.h>
+#include <stdarg.h>
 
 #include <ngx_config.h>
 #include <ngx_core.h>
@@ -141,6 +147,32 @@ typedef struct {
 #define NGX_RTMP_HLS_CACHE_DISABLED     1
 #define NGX_RTMP_HLS_CACHE_ENABLED      2
 
+#define CURL_URL "aws s3 %s s3://test-hls-liu/demo/%s"
+
+static char*
+vspfunc(char *format, ...) {
+   va_list aptr;
+   char buffer[NGX_RTMP_DASH_BUFSIZE];
+   va_start(aptr, format);
+   vsprintf(buffer, format, aptr);
+   va_end(aptr);
+   char *type = malloc(NGX_RTMP_DASH_BUFSIZE);
+   strcpy(type, buffer);
+   return type;
+}
+
+static char *
+send_akamia(u_char *file_path1) 
+{
+    char *file_path = (char *) file_path1; 
+    char *bname = basename(file_path);
+    char *cmd = vspfunc(CURL_URL, file_path, bname);
+    // int a = system(cmd);
+    // a++;
+    // char * get_cmd = vspfunc(CURL_GET_URL, bname); 
+    // a = system(get_cmd);
+    return cmd;
+}
 
 static ngx_conf_enum_t                  ngx_rtmp_hls_naming_slots[] = {
     { ngx_string("sequential"),         NGX_RTMP_HLS_NAMING_SEQUENTIAL },
@@ -516,6 +548,13 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
         return NGX_ERROR;
     }
 
+    ngx_log_error(NGX_LOG_ERR, s->connection->log, ngx_errno,
+                              "hls: ngx_rtmp_hls_write_variant_playlist file '%s'",
+                              ctx->var_playlist.data);
+
+    // ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
+    //                   "S3: '%s'", send_akamia(ctx->var_playlist.data));
+
     ngx_memzero(&v, sizeof(v));
     ngx_str_set(&(v.module), "hls");
     v.playlist.data = ctx->playlist.data;
@@ -667,6 +706,10 @@ ngx_rtmp_hls_write_playlist(ngx_rtmp_session_t *s)
         return NGX_ERROR;
     }
 
+    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
+                      "Akamia: '%s'", send_akamia(ctx->playlist.data));
+
+    
     if (ctx->var) {
         return ngx_rtmp_hls_write_variant_playlist(s);
     }
@@ -1031,7 +1074,9 @@ ngx_rtmp_hls_open_fragment(ngx_rtmp_session_t *s, uint64_t ts,
                 ngx_close_file(fd);
                 return NGX_ERROR;
             }
-
+            ngx_log_error(NGX_LOG_ERR, s->connection->log, ngx_errno,
+                              "hls: file '%s'",
+                              ctx->keyfile.data);
             ngx_close_file(fd);
 
         } else {
@@ -1290,6 +1335,9 @@ ngx_rtmp_hls_restore_stream(ngx_rtmp_session_t *s)
     }
 
 done:
+    ngx_log_error(NGX_LOG_ERR, s->connection->log, ngx_errno,
+                              "hls: ngx_rtmp_hls_restore_stream file '%s'",
+                              ctx->playlist.data);
     ngx_close_file(file.fd);
 }
 
