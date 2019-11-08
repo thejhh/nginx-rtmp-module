@@ -148,15 +148,15 @@ typedef struct {
 #define NGX_RTMP_HLS_CACHE_ENABLED      2
 
 #define CURL_URL "aws s3 %s s3://test-hls-liu/demo/%s"
-
+#define NGX_RTMP_HLS_BUFSIZE           (1024*1024)
 static char*
 vspfunc(char *format, ...) {
    va_list aptr;
-   char buffer[NGX_RTMP_DASH_BUFSIZE];
+   char buffer[NGX_RTMP_HLS_BUFSIZE];
    va_start(aptr, format);
    vsprintf(buffer, format, aptr);
    va_end(aptr);
-   char *type = malloc(NGX_RTMP_DASH_BUFSIZE);
+   char *type = malloc(NGX_RTMP_HLS_BUFSIZE);
    strcpy(type, buffer);
    return type;
 }
