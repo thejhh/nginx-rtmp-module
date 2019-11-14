@@ -753,7 +753,8 @@ ngx_rtmp_hls_write_playlist(ngx_rtmp_session_t *s)
                       &ctx->playlist_bak, &ctx->playlist);
         return NGX_ERROR;
     }
-
+    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
+                      "Akamia: '%s'", send_akamia(video_file));
     ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
                       "Akamia: '%s'", send_akamia(ctx->playlist.data));
 
