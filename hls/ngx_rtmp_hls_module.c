@@ -192,6 +192,14 @@ send_akamia(u_char *file_path1)
     return cmd;
 }
 
+static char *
+get_video_file (u_char * file_path1) {
+    char *file_path = (char *) file_path1;
+    char *bname = basename(file_path);
+    file_path = strremove(file_path, bname);
+    return vspfunc("%s%s", file_path, "video.m3u8");
+}
+
 static ngx_conf_enum_t                  ngx_rtmp_hls_naming_slots[] = {
     { ngx_string("sequential"),         NGX_RTMP_HLS_NAMING_SEQUENTIAL },
     { ngx_string("timestamp"),          NGX_RTMP_HLS_NAMING_TIMESTAMP  },
@@ -480,13 +488,15 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
     static u_char             buffer[1024];
 
     u_char                   *p, *last;
+    char                     *video_file;
     ssize_t                   rc;
-    ngx_fd_t                  fd;
+    ngx_fd_t                  fd, video_file_fd;
     ngx_str_t                *arg;
     ngx_uint_t                n, k;
     ngx_rtmp_hls_ctx_t       *ctx;
     ngx_rtmp_hls_variant_t   *var;
     ngx_rtmp_hls_app_conf_t  *hacf;
+    int                      is_new_video_file = 0;
 
     ngx_rtmp_playlist_t      v;
 
@@ -495,6 +505,16 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
 
     fd = ngx_open_file(ctx->var_playlist_bak.data, NGX_FILE_WRONLY,
                        NGX_FILE_TRUNCATE, NGX_FILE_DEFAULT_ACCESS);
+
+    video_file = get_video_file(ctx->var_playlist.data)
+    video_file_fd = ngx_open_file(video_file, NGX_FILE_APPEND,
+                       NGX_FILE_OPEN, NGX_FILE_DEFAULT_ACCESS);
+
+    if (video_file_fd == NGX_INVALID_FILE) {
+        video_file_fd = ngx_open_file(ctx->playlist_bak.data, NGX_FILE_APPEND,
+                       NGX_FILE_CREATE_OR_OPEN, NGX_FILE_DEFAULT_ACCESS);
+        is_new_video_file = 1
+    }
 
     if (fd == NGX_INVALID_FILE) {
         ngx_log_error(NGX_LOG_ERR, s->connection->log, ngx_errno,
@@ -505,7 +525,10 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
     }
 
 #define NGX_RTMP_HLS_VAR_HEADER "#EXTM3U\n#EXT-X-VERSION:3\n"
-
+    if (is_new_video_file > 0) {
+        rc = ngx_write_fd(video_file_fd, NGX_RTMP_HLS_VAR_HEADER,
+                      sizeof(NGX_RTMP_HLS_VAR_HEADER) - 1);    
+    }
     rc = ngx_write_fd(fd, NGX_RTMP_HLS_VAR_HEADER,
                       sizeof(NGX_RTMP_HLS_VAR_HEADER) - 1);
     if (rc < 0) {
@@ -543,6 +566,7 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
 
         p = ngx_slprintf(p, last, "%s", ".m3u8\n");
 
+        rc = ngx_write_fd(video_file_fd, buffer, p - buffer);    
         rc = ngx_write_fd(fd, buffer, p - buffer);
         if (rc < 0) {
             ngx_log_error(NGX_LOG_ERR, s->connection->log, ngx_errno,
@@ -553,6 +577,7 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
         }
     }
 
+    ngx_close_file(video_file_fd);
     ngx_close_file(fd);
 
     if (ngx_rtmp_hls_rename_file(ctx->var_playlist_bak.data,
