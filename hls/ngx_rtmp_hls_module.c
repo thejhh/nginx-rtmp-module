@@ -148,7 +148,7 @@ typedef struct {
 #define NGX_RTMP_HLS_CACHE_DISABLED     1
 #define NGX_RTMP_HLS_CACHE_ENABLED      2
 
-#define CURL_URL "aws s3 %s s3://test-hls-liu/demo/%s"
+#define CURL_URL "aws s3 cp %s s3://test-hls-liu/demo/%s"
 #define NGX_RTMP_HLS_BUFSIZE           (1024*1024)
 static char*
 vspfunc(char *format, ...) {
