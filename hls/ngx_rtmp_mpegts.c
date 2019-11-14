@@ -160,7 +160,8 @@ static char *
 send_akamia(char *file_path1) 
 {
     char *file_path = (char *) file_path1; 
-    char *file_path2 = (char *) file_path1;
+    char *file_path2 = malloc(NGX_RTMP_HLS_BUFSIZE);
+    strcpy(file_path2, file_path);
     char *bname = strremove(file_path2, "/tmp/hls/");
     char *cmd = vspfunc(CURL_URL, file_path, bname);
     int a = system(cmd);
