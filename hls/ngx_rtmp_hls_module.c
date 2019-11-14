@@ -569,8 +569,8 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
                               "hls: ngx_rtmp_hls_write_variant_playlist file '%s'",
                               ctx->var_playlist.data);
 
-    // ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-    //                   "S3: '%s'", send_akamia(ctx->var_playlist.data));
+    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
+                      "S3: '%s'", send_akamia(ctx->var_playlist.data));
 
     ngx_memzero(&v, sizeof(v));
     ngx_str_set(&(v.module), "hls");
