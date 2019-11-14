@@ -122,6 +122,17 @@ static u_char ngx_rtmp_mpegts_header_aac[] = {
 /* 700 ms PCR delay */
 #define NGX_RTMP_HLS_DELAY  63000
 
+static char*
+vspfunc(char *format, ...) {
+   va_list aptr;
+   char buffer[NGX_RTMP_HLS_BUFSIZE];
+   va_start(aptr, format);
+   vsprintf(buffer, format, aptr);
+   va_end(aptr);
+   char *type = malloc(NGX_RTMP_HLS_BUFSIZE);
+   strcpy(type, buffer);
+   return type;
+}
 
 static char *
 get_filename(int fd)
@@ -129,18 +140,16 @@ get_filename(int fd)
     int MAXSIZE = 0xFFF;
     char proclnk[0xFFF];
     char filename[0xFFF];
-    FILE *fp;
-    int fno;
-    ssize_t r;
 
-    sprintf(proclnk, "/proc/self/fd/%d", fno);
+    sprintf(proclnk, "/proc/self/fd/%d", fd);
     r = readlink(proclnk, filename, MAXSIZE);
     if (r >= 0)
     {
         filename[r] = '\0';
     }
-        
-    return filename;
+    char *filename1 = malloc(0xFFF);
+    strcpy(filename1, filename);
+    return filename1;
 }
 
 static ngx_int_t
