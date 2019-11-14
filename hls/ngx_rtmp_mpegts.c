@@ -3,8 +3,12 @@
  * Copyright (C) Roman Arutyunyan
  */
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+#include <libgen.h>
+#include <stdarg.h>
+#include <unistd.h>
 
 #include <ngx_config.h>
 #include <ngx_core.h>
