@@ -606,7 +606,7 @@ ngx_rtmp_hls_write_playlist(ngx_rtmp_session_t *s)
     const char                     *sep, *key_sep;
 
     ngx_rtmp_playlist_t             v;
-    int                             is_new_video_file;
+    int                             is_new_video_file = 0;
 
     ngx_log_error(NGX_LOG_DEBUG, s->connection->log, 0,
                   "hls: write playlist");
