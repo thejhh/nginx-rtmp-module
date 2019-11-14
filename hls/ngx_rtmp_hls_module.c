@@ -621,12 +621,12 @@ ngx_rtmp_hls_write_playlist(ngx_rtmp_session_t *s)
     video_file_fd = ngx_open_file(video_file, NGX_FILE_APPEND,
                        NGX_FILE_OPEN, NGX_FILE_DEFAULT_ACCESS);
 
-    // ngx_log_error(NGX_LOG_ERR, s->connection->log, ngx_errno,
-    //                   "hls failed: %u %s", video_file_fd, &video_file);
+    ngx_log_error(NGX_LOG_ERR, s->connection->log, ngx_errno,
+                      "hls failed: %u", video_file_fd);
         
     if (video_file_fd == NGX_INVALID_FILE) {
         video_file_fd = ngx_open_file(video_file, NGX_FILE_APPEND,
-                       NGX_FILE_CREATE_OR_OPEN, NGX_FILE_DEFAULT_ACCESS);
+                       NGX_FILE_TRUNCATE, NGX_FILE_DEFAULT_ACCESS);
         is_new_video_file = 1;
     }
 
