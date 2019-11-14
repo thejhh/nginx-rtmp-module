@@ -695,6 +695,10 @@ ngx_rtmp_hls_write_playlist(ngx_rtmp_session_t *s)
         f = ngx_rtmp_hls_get_frag(s, i);
         if ((i == 0 || f->discont) && f->datetime && f->datetime->len > 0) {
             p = ngx_snprintf(buffer, sizeof(buffer), "#EXT-X-PROGRAM-DATE-TIME:");
+            if (is_new_video_file > 0) {
+                n = ngx_write_fd(video_file_fd, buffer, p - buffer);    
+            }
+
             n = ngx_write_fd(fd, buffer, p - buffer);
             if (n < 0) {
                 goto write_err;
@@ -702,6 +706,9 @@ ngx_rtmp_hls_write_playlist(ngx_rtmp_session_t *s)
             n = ngx_write_fd(fd, f->datetime->data, f->datetime->len);
             if (n < 0) {
                 goto write_err;
+            }
+            if (is_new_video_file > 0) {
+                n = ngx_write_fd(video_file_fd, "\n", 1);    
             }
             n = ngx_write_fd(fd, "\n", 1);
             if (n < 0) {
