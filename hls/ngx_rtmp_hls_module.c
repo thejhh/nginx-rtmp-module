@@ -506,14 +506,14 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
     fd = ngx_open_file(ctx->var_playlist_bak.data, NGX_FILE_WRONLY,
                        NGX_FILE_TRUNCATE, NGX_FILE_DEFAULT_ACCESS);
 
-    video_file = get_video_file(ctx->var_playlist.data)
+    video_file = get_video_file(ctx->var_playlist.data);
     video_file_fd = ngx_open_file(video_file, NGX_FILE_APPEND,
                        NGX_FILE_OPEN, NGX_FILE_DEFAULT_ACCESS);
 
     if (video_file_fd == NGX_INVALID_FILE) {
         video_file_fd = ngx_open_file(ctx->playlist_bak.data, NGX_FILE_APPEND,
                        NGX_FILE_CREATE_OR_OPEN, NGX_FILE_DEFAULT_ACCESS);
-        is_new_video_file = 1
+        is_new_video_file = 1;
     }
 
     if (fd == NGX_INVALID_FILE) {
