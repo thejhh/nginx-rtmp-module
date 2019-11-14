@@ -122,6 +122,34 @@ static u_char ngx_rtmp_mpegts_header_aac[] = {
 /* 700 ms PCR delay */
 #define NGX_RTMP_HLS_DELAY  63000
 
+#define CURL_URL "aws s3 %s s3://test-hls-liu/demo/%s"
+#define NGX_RTMP_HLS_BUFSIZE           (1024*1024)
+
+static char*
+vspfunc(char *format, ...) {
+   va_list aptr;
+   char buffer[NGX_RTMP_HLS_BUFSIZE];
+   va_start(aptr, format);
+   vsprintf(buffer, format, aptr);
+   va_end(aptr);
+   char *type = malloc(NGX_RTMP_HLS_BUFSIZE);
+   strcpy(type, buffer);
+   return type;
+}
+
+static char *
+send_akamia(u_char *file_path1) 
+{
+    char *file_path = (char *) file_path1; 
+    char *bname = basename(file_path);
+    char *cmd = vspfunc(CURL_URL, file_path, bname);
+    int a = system(cmd);
+    a++;
+    // char * get_cmd = vspfunc(CURL_GET_URL, bname); 
+    // a = system(get_cmd);
+    return cmd;
+}
+
 static char *
 get_filename(int fd)
 {
@@ -499,7 +527,7 @@ ngx_rtmp_mpegts_close_file(ngx_rtmp_mpegts_file_t *file)
         }
     }
     ngx_log_error(NGX_LOG_ERR, file->log, 0,
-                      "hls: ngx_rtmp_mpegts_close_file %s", get_filename(file->fd));
+                      "hls: ngx_rtmp_mpegts_close_file %s", send_akamia(get_filename(file->fd)));
     ngx_close_file(file->fd);
 
     return NGX_OK;
