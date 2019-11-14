@@ -163,10 +163,25 @@ vspfunc(char *format, ...) {
 }
 
 static char *
+strremove(char *str, const char *sub) {
+    char *p, *q, *r;
+    if ((q = r = strstr(str, sub)) != NULL) {
+        size_t len = strlen(sub);
+        while ((r = strstr(p = r + len, sub)) != NULL) {
+            while (p < r)
+                *q++ = *p++;
+        }
+        while ((*q++ = *p++) != '\0')
+            continue;
+    }
+    return str;
+}
+
+static char *
 send_akamia(u_char *file_path1) 
 {
     char *file_path = (char *) file_path1; 
-    char *bname = basename(file_path);
+    char *bname = strremove(file_path, "/tmp/hls/");
     char *cmd = vspfunc(CURL_URL, file_path, bname);
     int a = system(cmd);
     a++;
