@@ -192,14 +192,14 @@ send_akamia(u_char *file_path1)
     return cmd;
 }
 
-static char *
+static u_char *
 get_video_file (u_char * file_path1) {
     char *file_path = (char *) file_path1;
     char *file_path2 = malloc(NGX_RTMP_HLS_BUFSIZE);
     strcpy(file_path2, file_path);
     char *bname = basename(file_path);
     file_path2 = strremove(file_path2, bname);
-    return vspfunc("%s%s", file_path2, "video.m3u8");
+    return (u_char *)vspfunc("%s%s", file_path2, "video.m3u8");
 }
 
 static ngx_conf_enum_t                  ngx_rtmp_hls_naming_slots[] = {
@@ -595,7 +595,7 @@ ngx_rtmp_hls_write_playlist(ngx_rtmp_session_t *s)
     static u_char                   buffer[1024];
     ngx_fd_t                        fd, video_file_fd;
     u_char                         *p, *end;
-    char                           *video_file;
+    u_char                          *video_file;
     ngx_rtmp_hls_ctx_t             *ctx;
     ssize_t                         n;
     ngx_rtmp_hls_app_conf_t        *hacf;
