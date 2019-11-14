@@ -195,9 +195,11 @@ send_akamia(u_char *file_path1)
 static char *
 get_video_file (u_char * file_path1) {
     char *file_path = (char *) file_path1;
+    char *file_path2 = malloc(NGX_RTMP_HLS_BUFSIZE);
+    strcpy(file_path2, file_path);
     char *bname = basename(file_path);
-    file_path = strremove(file_path, bname);
-    return vspfunc("%s%s", file_path, "video.m3u8");
+    file_path2 = strremove(file_path2, bname);
+    return vspfunc("%s%s", file_path2, "video.m3u8");
 }
 
 static ngx_conf_enum_t                  ngx_rtmp_hls_naming_slots[] = {
