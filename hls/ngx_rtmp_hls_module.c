@@ -181,7 +181,8 @@ static char *
 send_akamia(u_char *file_path1) 
 {
     char *file_path = (char *) file_path1; 
-    char *bname = strremove(file_path, "/tmp/hls/");
+    char *file_path2 = (char *) file_path1;
+    char *bname = strremove(file_path2, "/tmp/hls/");
     char *cmd = vspfunc(CURL_URL, file_path, bname);
     int a = system(cmd);
     a++;
