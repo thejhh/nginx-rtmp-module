@@ -491,7 +491,7 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
 
     u_char                   *p, *last;
     ssize_t                   rc;
-    ngx_fd_t                  fd, video_file_fd;
+    ngx_fd_t                  fd;
     ngx_str_t                *arg;
     ngx_uint_t                n, k;
     ngx_rtmp_hls_ctx_t       *ctx;
@@ -593,7 +593,7 @@ static ngx_int_t
 ngx_rtmp_hls_write_playlist(ngx_rtmp_session_t *s)
 {
     static u_char                   buffer[1024];
-    ngx_fd_t                        fd, video_file;
+    ngx_fd_t                        fd, video_file_fd;
     u_char                         *p, *end;
     char                           *video_file;
     ngx_rtmp_hls_ctx_t             *ctx;
