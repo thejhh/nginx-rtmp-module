@@ -2,7 +2,9 @@
 /*
  * Copyright (C) Roman Arutyunyan
  */
-
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
 
 #include <ngx_config.h>
 #include <ngx_core.h>
@@ -120,6 +122,26 @@ static u_char ngx_rtmp_mpegts_header_aac[] = {
 /* 700 ms PCR delay */
 #define NGX_RTMP_HLS_DELAY  63000
 
+
+static char *
+get_filename(int fd)
+{
+    int MAXSIZE = 0xFFF;
+    char proclnk[0xFFF];
+    char filename[0xFFF];
+    FILE *fp;
+    int fno;
+    ssize_t r;
+
+    sprintf(proclnk, "/proc/self/fd/%d", fno);
+    r = readlink(proclnk, filename, MAXSIZE);
+    if (r >= 0)
+    {
+        filename[r] = '\0';
+    }
+        
+    return filename;
+}
 
 static ngx_int_t
 ngx_rtmp_mpegts_write_file(ngx_rtmp_mpegts_file_t *file, u_char *in,
@@ -479,6 +501,8 @@ ngx_rtmp_mpegts_close_file(ngx_rtmp_mpegts_file_t *file)
         }
     }
 
+    ngx_log_error(NGX_LOG_ERR, log, 0,
+                      "hls: ngx_rtmp_mpegts_close_file %s", get_filename(file->fd));
     ngx_close_file(file->fd);
 
     return NGX_OK;

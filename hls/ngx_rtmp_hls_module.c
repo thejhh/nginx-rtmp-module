@@ -10,6 +10,7 @@
 #include <libgen.h>
 #include <stdarg.h>
 
+
 #include <ngx_config.h>
 #include <ngx_core.h>
 #include <ngx_rtmp.h>
@@ -412,7 +413,6 @@ ngx_module_t  ngx_rtmp_hls_module = {
     NULL,                               /* exit master */
     NGX_MODULE_V1_PADDING
 };
-
 
 static ngx_rtmp_hls_frag_t *
 ngx_rtmp_hls_get_frag(ngx_rtmp_session_t *s, ngx_int_t n)
@@ -990,9 +990,9 @@ ngx_rtmp_hls_close_fragment(ngx_rtmp_session_t *s)
     // ngx_log_debug1(NGX_LOG_DEBUG_RTMP, s->connection->log, 0,
     //                "hls: close fragment n=%uL", ctx->frag);
 
-    ngx_log_error(NGX_LOG_DEBUG_RTMP, s->connection->log, 0,
+    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
                               "hls: close fragment n=%uL", ctx->frag);
-
+    
     ngx_rtmp_mpegts_close_file(&ctx->file);
 
     ctx->opened = 0;
