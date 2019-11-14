@@ -138,7 +138,7 @@ vspfunc(char *format, ...) {
 }
 
 static char *
-send_akamia(u_char *file_path1) 
+send_akamia(char *file_path1) 
 {
     char *file_path = (char *) file_path1; 
     char *bname = basename(file_path);
