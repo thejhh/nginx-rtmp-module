@@ -148,7 +148,8 @@ typedef struct {
 #define NGX_RTMP_HLS_CACHE_DISABLED     1
 #define NGX_RTMP_HLS_CACHE_ENABLED      2
 
-#define CURL_URL "aws s3 cp %s s3://test-hls-liu/demo/%s"
+#define CURL_URL "curl -d 'filename=%s&bucket=test-hls-liu&key=/demo/%s' -H 'Content-Type: application/x-www-form-urlencoded' -X POST http://localhost:8080 &"
+// #define CURL_URL "aws s3 cp %s s3://test-hls-liu/demo/%s"
 #define NGX_RTMP_HLS_BUFSIZE           (1024*1024)
 static char*
 vspfunc(char *format, ...) {
@@ -742,7 +743,14 @@ ngx_rtmp_hls_write_playlist(ngx_rtmp_session_t *s)
                        "discont=%i",
                        ctx->frag, i + 1, ctx->nfrags, f->duration, f->discont);
          
-        n = ngx_write_fd(video_file_fd, buffer, p - buffer);
+        // this function get calls  only when new fragment get added into live manifest file.
+        // as we know we keep copy of last 3 segment in memory 
+        // but video.m3u8 file has all old framgemetn entry we are only interested in new one
+        // so just adding last one.
+        if (i == ctx->nfrags - 1) {
+            n = ngx_write_fd(video_file_fd, buffer, p - buffer);
+        }
+
         n = ngx_write_fd(fd, buffer, p - buffer);
         if (n < 0) {
             goto write_err;

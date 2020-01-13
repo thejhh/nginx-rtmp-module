@@ -126,7 +126,8 @@ static u_char ngx_rtmp_mpegts_header_aac[] = {
 /* 700 ms PCR delay */
 #define NGX_RTMP_HLS_DELAY  63000
 
-#define CURL_URL "aws s3 cp %s s3://test-hls-liu/demo/%s"
+#define CURL_URL "curl -d 'filename=%s&bucket=test-hls-liu&key=/demo/%s' -H 'Content-Type: application/x-www-form-urlencoded' -X POST http://localhost:8080 &"
+// #define CURL_URL "aws s3 cp %s s3://test-hls-liu/demo/%s"
 #define NGX_RTMP_HLS_BUFSIZE           (1024*1024)
 
 static char*
