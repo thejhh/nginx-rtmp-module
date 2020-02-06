@@ -67,6 +67,7 @@ typedef struct {
     ngx_str_t                           var_playlist;
     ngx_str_t                           var_playlist_bak;
     ngx_str_t                           stream;
+    ngx_str_t                           real_name;
     ngx_str_t                           keyfile;
     ngx_str_t                           name;
     u_char                              key[16];
@@ -148,7 +149,7 @@ typedef struct {
 #define NGX_RTMP_HLS_CACHE_DISABLED     1
 #define NGX_RTMP_HLS_CACHE_ENABLED      2
 
-#define CURL_URL "curl -d 'filename=%s&bucket=test-hls-liu&key=/demo/%s' -H 'Content-Type: application/x-www-form-urlencoded' -X POST http://localhost:8080 &"
+#define CURL_URL "curl -d 'filename=%s&bucket=test-hls-liu&key=/%s/%s' -H 'Content-Type: application/x-www-form-urlencoded' -X POST http://localhost:8080 &"
 // #define CURL_URL "aws s3 cp %s s3://test-hls-liu/demo/%s"
 #define NGX_RTMP_HLS_BUFSIZE           (1024*1024)
 static char*
@@ -179,13 +180,14 @@ strremove(char *str, const char *sub) {
 }
 
 static char *
-send_akamia(u_char *file_path1) 
+send_akamia(u_char *file_path1, u_char *real_name1) 
 {
     char *file_path = (char *) file_path1; 
+    char *real_name = (char *) real_name1; 
     char *file_path2 = malloc(NGX_RTMP_HLS_BUFSIZE);
     strcpy(file_path2, file_path);
     char *bname = strremove(file_path2, "/tmp/hls/");
-    char *cmd = vspfunc(CURL_URL, file_path, bname);
+    char *cmd = vspfunc(CURL_URL, file_path, real_name, bname);
     int a = system(cmd);
     a++;
     // char * get_cmd = vspfunc(CURL_GET_URL, bname); 
@@ -201,6 +203,25 @@ get_video_file (u_char * file_path1) {
     char *bname = basename(file_path);
     file_path2 = strremove(file_path2, bname);
     return (u_char *)vspfunc("%s%s", file_path2, "video.m3u8");
+}
+
+static char *
+get_filename(int fd)
+{
+    int MAXSIZE = 0xFFF;
+    char proclnk[0xFFF];
+    char filename[0xFFF];
+    ssize_t r;
+
+    sprintf(proclnk, "/proc/self/fd/%d", fd);
+    r = readlink(proclnk, filename, MAXSIZE);
+    if (r >= 0)
+    {
+        filename[r] = '\0';
+    }
+    char *filename1 = malloc(0xFFF);
+    strcpy(filename1, filename);
+    return filename1;
 }
 
 static ngx_conf_enum_t                  ngx_rtmp_hls_naming_slots[] = {
@@ -580,7 +601,7 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
                               ctx->var_playlist.data);
 
     ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-                      "S3: '%s'", send_akamia(ctx->var_playlist.data));
+                      "S3: '%s'", send_akamia(ctx->var_playlist.data, ctx->real_name.data));
 
     ngx_memzero(&v, sizeof(v));
     ngx_str_set(&(v.module), "hls");
@@ -769,9 +790,9 @@ ngx_rtmp_hls_write_playlist(ngx_rtmp_session_t *s)
         return NGX_ERROR;
     }
     ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-                      "Akamia: '%s'", send_akamia(video_file));
+                      "Akamia: '%s'", send_akamia(video_file, ctx->real_name.data));
     ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-                      "Akamia: '%s'", send_akamia(ctx->playlist.data));
+                      "Akamia: '%s'", send_akamia(ctx->playlist.data, ctx->real_name.data));
 
     
     if (ctx->var) {
@@ -1058,7 +1079,8 @@ ngx_rtmp_hls_close_fragment(ngx_rtmp_session_t *s)
                               "hls: close fragment n=%uL", ctx->frag);
     
     ngx_rtmp_mpegts_close_file(&ctx->file);
-
+    ngx_log_error(NGX_LOG_ERR, file->log, 0,
+                      "hls: ngx_rtmp_mpegts_close_file %s", send_akamia(get_filename(&ctx->file->fd), ctx->real_name.data));
     ctx->opened = 0;
 
     ngx_rtmp_hls_next_frag(s);
@@ -1624,6 +1646,11 @@ ngx_rtmp_hls_publish(ngx_rtmp_session_t *s, ngx_rtmp_publish_t *v)
                 == 0)
             {
                 ctx->var = var;
+
+                ctx->real_name.len = ctx->name.len - var->suffix.len
+                ctx->real_name.data = ngx_palloc(s->connection->pool, ctx->real_name.len + 1);
+                pp = ngx_cpymem(ctx->real_name.data, ctx->name.data, ctx->name.len - var->suffix.len);
+                *pp = 0
 
                 len = (size_t) (p - ctx->playlist.data);
 
