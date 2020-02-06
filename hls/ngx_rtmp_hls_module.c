@@ -521,6 +521,7 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
     ngx_rtmp_hls_app_conf_t  *hacf;
 
     ngx_rtmp_playlist_t      v;
+    int                      is_new_video_file = 0;
 
     hacf = ngx_rtmp_get_module_app_conf(s, ngx_rtmp_hls_module);
     ctx = ngx_rtmp_get_module_ctx(s, ngx_rtmp_hls_module);
@@ -535,6 +536,19 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
         return NGX_ERROR;
     }
 
+    video_file = get_video_file(ctx->var_playlist_bak.data);
+    video_file_fd = ngx_open_file(video_file, NGX_FILE_WRONLY,
+                       NGX_FILE_TRUNCATE, NGX_FILE_DEFAULT_ACCESS);
+
+    // ngx_log_error(NGX_LOG_ERR, s->connection->log, ngx_errno,
+    //                   "hls failed: %u", video_file_fd);
+        
+    if (video_file_fd == NGX_INVALID_FILE) {
+        video_file_fd = ngx_open_file(video_file, NGX_FILE_APPEND,
+                       NGX_FILE_TRUNCATE, NGX_FILE_DEFAULT_ACCESS);
+        is_new_video_file = 1;
+    }
+
 #define NGX_RTMP_HLS_VAR_HEADER "#EXTM3U\n#EXT-X-VERSION:3\n"
     
     rc = ngx_write_fd(fd, NGX_RTMP_HLS_VAR_HEADER,
@@ -545,6 +559,11 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
                       &ctx->var_playlist_bak);
         ngx_close_file(fd);
         return NGX_ERROR;
+    }
+
+    if (is_new_video_file > 0) {
+        n = ngx_write_fd(video_file_fd, NGX_RTMP_HLS_VAR_HEADER,
+                      sizeof(NGX_RTMP_HLS_VAR_HEADER) - 1);    
     }
 
     var = hacf->variant->elts;
@@ -575,6 +594,7 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
         p = ngx_slprintf(p, last, "%s", ".m3u8\n");
 
         rc = ngx_write_fd(fd, buffer, p - buffer);
+        rc = ngx_write_fd(video_file_fd, buffer, p - buffer);
         if (rc < 0) {
             ngx_log_error(NGX_LOG_ERR, s->connection->log, ngx_errno,
                           "hls: " ngx_write_fd_n " failed '%V'",
