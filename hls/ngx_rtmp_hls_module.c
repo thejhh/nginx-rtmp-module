@@ -609,7 +609,7 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
         video = ngx_slprintf(video, video_last, "%s", ".m3u8\n");
 
         rc = ngx_write_fd(fd, buffer, p - buffer);
-        video_rc = ngx_write_fd(video_file_fd, buffer, video - buffer);
+        video_rc = ngx_write_fd(video_file_fd, video_buffer, video - video_buffer);
         if (rc < 0) {
             ngx_log_error(NGX_LOG_ERR, s->connection->log, ngx_errno,
                           "hls: " ngx_write_fd_n " failed '%V'",
