@@ -1066,7 +1066,7 @@ static ngx_int_t
 ngx_rtmp_hls_close_fragment(ngx_rtmp_session_t *s)
 {
     ngx_rtmp_hls_ctx_t         *ctx;
-    ngx_rtmp_mpegts_file_t     file;
+    char * filename;
 
     ctx = ngx_rtmp_get_module_ctx(s, ngx_rtmp_hls_module);
     if (ctx == NULL || !ctx->opened) {
@@ -1079,9 +1079,11 @@ ngx_rtmp_hls_close_fragment(ngx_rtmp_session_t *s)
     ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
                               "hls: close fragment n=%uL", ctx->frag);
     
+    filename = get_filename1(ctx->file.fd);
+
     ngx_rtmp_mpegts_close_file(&ctx->file);
-    file = &ctx->file
-    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0, "hls: ngx_rtmp_mpegts_close_file %s", send_akamia(get_filename1(file->fd), ctx->real_name.data));
+    
+    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0, "hls: ngx_rtmp_mpegts_close_file %s", send_akamia((u_char *)filename, ctx->real_name.data));
     ctx->opened = 0;
 
     ngx_rtmp_hls_next_frag(s);

@@ -126,71 +126,6 @@ static u_char ngx_rtmp_mpegts_header_aac[] = {
 /* 700 ms PCR delay */
 #define NGX_RTMP_HLS_DELAY  63000
 
-#define CURL_URL "curl -d 'filename=%s&bucket=test-hls-liu&key=/demo/%s' -H 'Content-Type: application/x-www-form-urlencoded' -X POST http://localhost:8080 &"
-// #define CURL_URL "aws s3 cp %s s3://test-hls-liu/demo/%s"
-#define NGX_RTMP_HLS_BUFSIZE           (1024*1024)
-
-static char*
-vspfunc(char *format, ...) {
-   va_list aptr;
-   char buffer[NGX_RTMP_HLS_BUFSIZE];
-   va_start(aptr, format);
-   vsprintf(buffer, format, aptr);
-   va_end(aptr);
-   char *type = malloc(NGX_RTMP_HLS_BUFSIZE);
-   strcpy(type, buffer);
-   return type;
-}
-
-static char *
-strremove(char *str, const char *sub) {
-    char *p, *q, *r;
-    if ((q = r = strstr(str, sub)) != NULL) {
-        size_t len = strlen(sub);
-        while ((r = strstr(p = r + len, sub)) != NULL) {
-            while (p < r)
-                *q++ = *p++;
-        }
-        while ((*q++ = *p++) != '\0')
-            continue;
-    }
-    return str;
-}
-
-static char *
-send_akamia(char *file_path1) 
-{
-    char *file_path = (char *) file_path1; 
-    char *file_path2 = malloc(NGX_RTMP_HLS_BUFSIZE);
-    strcpy(file_path2, file_path);
-    char *bname = strremove(file_path2, "/tmp/hls/");
-    char *cmd = vspfunc(CURL_URL, file_path, bname);
-    int a = system(cmd);
-    a++;
-    // char * get_cmd = vspfunc(CURL_GET_URL, bname); 
-    // a = system(get_cmd);
-    return cmd;
-}
-
-static char *
-get_filename(int fd)
-{
-    int MAXSIZE = 0xFFF;
-    char proclnk[0xFFF];
-    char filename[0xFFF];
-    ssize_t r;
-
-    sprintf(proclnk, "/proc/self/fd/%d", fd);
-    r = readlink(proclnk, filename, MAXSIZE);
-    if (r >= 0)
-    {
-        filename[r] = '\0';
-    }
-    char *filename1 = malloc(0xFFF);
-    strcpy(filename1, filename);
-    return filename1;
-}
-
 static ngx_int_t
 ngx_rtmp_mpegts_write_file(ngx_rtmp_mpegts_file_t *file, u_char *in,
     size_t in_size)
@@ -548,9 +483,6 @@ ngx_rtmp_mpegts_close_file(ngx_rtmp_mpegts_file_t *file)
             return NGX_ERROR;
         }
     }
-    ngx_log_error(NGX_LOG_ERR, file->log, 0,
-                      "hls: ngx_rtmp_mpegts_close_file %s", send_akamia(get_filename(file->fd)));
     ngx_close_file(file->fd);
-
     return NGX_OK;
 }
