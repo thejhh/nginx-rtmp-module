@@ -206,7 +206,7 @@ get_video_file (u_char * file_path1) {
 }
 
 static char *
-get_filename(int fd)
+get_filename1(int fd)
 {
     int MAXSIZE = 0xFFF;
     char proclnk[0xFFF];
@@ -1066,6 +1066,7 @@ static ngx_int_t
 ngx_rtmp_hls_close_fragment(ngx_rtmp_session_t *s)
 {
     ngx_rtmp_hls_ctx_t         *ctx;
+    ngx_rtmp_mpegts_file_t     file;
 
     ctx = ngx_rtmp_get_module_ctx(s, ngx_rtmp_hls_module);
     if (ctx == NULL || !ctx->opened) {
@@ -1079,8 +1080,8 @@ ngx_rtmp_hls_close_fragment(ngx_rtmp_session_t *s)
                               "hls: close fragment n=%uL", ctx->frag);
     
     ngx_rtmp_mpegts_close_file(&ctx->file);
-    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-                      "hls: ngx_rtmp_mpegts_close_file %s", send_akamia(get_filename(ctx->file->fd), ctx->real_name.data));
+    file = &ctx->file
+    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0, "hls: ngx_rtmp_mpegts_close_file %s", send_akamia(get_filename1(file->fd), ctx->real_name.data));
     ctx->opened = 0;
 
     ngx_rtmp_hls_next_frag(s);
