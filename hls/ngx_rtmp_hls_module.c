@@ -511,7 +511,7 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
 {
     static u_char             buffer[1024];
 
-    u_char                   *p, *last, *v;
+    u_char                   *p, *last, *video;
     ssize_t                   rc;
     ngx_fd_t                        fd, video_file_fd;
     u_char                          *video_file;
@@ -571,44 +571,44 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
     for (n = 0; n < hacf->variant->nelts; n++, var++)
     {
         p = buffer;
-        v = buffer;
+        video = buffer;
         last = buffer + sizeof(buffer);
 
         p = ngx_slprintf(p, last, "#EXT-X-STREAM-INF:PROGRAM-ID=1,CLOSED-CAPTIONS=NONE");
-        v = ngx_slprintf(v, last, "#EXT-X-STREAM-INF:PROGRAM-ID=1,CLOSED-CAPTIONS=NONE");
+        video = ngx_slprintf(video, last, "#EXT-X-STREAM-INF:PROGRAM-ID=1,CLOSED-CAPTIONS=NONE");
 
         arg = var->args.elts;
         for (k = 0; k < var->args.nelts; k++, arg++) {
             p = ngx_slprintf(p, last, ",%V", arg);
-            v = ngx_slprintf(v, last, ",%V", arg);
+            video = ngx_slprintf(video, last, ",%V", arg);
         }
 
         if (p < last) {
             *p++ = '\n';
         }
 
-        if (v < last) {
-            *v++ = '\n';
+        if (video < last) {
+            *video++ = '\n';
         }
 
         p = ngx_slprintf(p, last, "%V%*s%V",
                          &hacf->base_url,
                          ctx->name.len - ctx->var->suffix.len, ctx->name.data,
                          &var->suffix);
-        v = ngx_slprintf(v, last, "%V%*s%V",
+        video = ngx_slprintf(video, last, "%V%*s%V",
                          &hacf->base_url,
                          ctx->name.len - ctx->var->suffix.len, ctx->name.data,
                          &var->suffix);
         if (hacf->nested) {
             p = ngx_slprintf(p, last, "%s", "/manifest");
-            v = ngx_slprintf(v, last, "%s", "/video");
+            video = ngx_slprintf(video, last, "%s", "/video");
         }
 
         p = ngx_slprintf(p, last, "%s", ".m3u8\n");
-        v = ngx_slprintf(v, last, "%s", ".m3u8\n");
+        video = ngx_slprintf(video, last, "%s", ".m3u8\n");
 
         rc = ngx_write_fd(fd, buffer, p - buffer);
-        rc = ngx_write_fd(video_file_fd, buffer, v - buffer);
+        rc = ngx_write_fd(video_file_fd, buffer, video - buffer);
         if (rc < 0) {
             ngx_log_error(NGX_LOG_ERR, s->connection->log, ngx_errno,
                           "hls: " ngx_write_fd_n " failed '%V'",
@@ -636,6 +636,8 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
 
     ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
                       "S3: '%s'", send_akamia(ctx->var_playlist.data, ctx->real_name.data));
+    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
+                      "S3: '%s'", send_akamia(video_file, ctx->real_name.data));
 
     ngx_memzero(&v, sizeof(v));
     ngx_str_set(&(v.module), "hls");
