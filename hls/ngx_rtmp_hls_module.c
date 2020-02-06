@@ -1079,8 +1079,8 @@ ngx_rtmp_hls_close_fragment(ngx_rtmp_session_t *s)
                               "hls: close fragment n=%uL", ctx->frag);
     
     ngx_rtmp_mpegts_close_file(&ctx->file);
-    ngx_log_error(NGX_LOG_ERR, file->log, 0,
-                      "hls: ngx_rtmp_mpegts_close_file %s", send_akamia(get_filename(&ctx->file->fd), ctx->real_name.data));
+    ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
+                      "hls: ngx_rtmp_mpegts_close_file %s", send_akamia(get_filename(ctx->file->fd), ctx->real_name.data));
     ctx->opened = 0;
 
     ngx_rtmp_hls_next_frag(s);
@@ -1647,10 +1647,10 @@ ngx_rtmp_hls_publish(ngx_rtmp_session_t *s, ngx_rtmp_publish_t *v)
             {
                 ctx->var = var;
 
-                ctx->real_name.len = ctx->name.len - var->suffix.len
+                ctx->real_name.len = ctx->name.len - var->suffix.len;
                 ctx->real_name.data = ngx_palloc(s->connection->pool, ctx->real_name.len + 1);
                 pp = ngx_cpymem(ctx->real_name.data, ctx->name.data, ctx->name.len - var->suffix.len);
-                *pp = 0
+                *pp = 0;
 
                 len = (size_t) (p - ctx->playlist.data);
 
