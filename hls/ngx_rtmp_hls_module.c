@@ -511,9 +511,10 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
 {
     static u_char             buffer[1024];
 
-    u_char                   *p, *last;
+    u_char                   *p, *last, *v;
     ssize_t                   rc;
-    ngx_fd_t                  fd;
+    ngx_fd_t                        fd, video_file_fd;
+    u_char                          *video_file;
     ngx_str_t                *arg;
     ngx_uint_t                n, k;
     ngx_rtmp_hls_ctx_t       *ctx;
@@ -570,31 +571,44 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
     for (n = 0; n < hacf->variant->nelts; n++, var++)
     {
         p = buffer;
+        v = buffer;
         last = buffer + sizeof(buffer);
 
         p = ngx_slprintf(p, last, "#EXT-X-STREAM-INF:PROGRAM-ID=1,CLOSED-CAPTIONS=NONE");
+        v = ngx_slprintf(v, last, "#EXT-X-STREAM-INF:PROGRAM-ID=1,CLOSED-CAPTIONS=NONE");
 
         arg = var->args.elts;
         for (k = 0; k < var->args.nelts; k++, arg++) {
             p = ngx_slprintf(p, last, ",%V", arg);
+            v = ngx_slprintf(v, last, ",%V", arg);
         }
 
         if (p < last) {
             *p++ = '\n';
         }
 
+        if (v < last) {
+            *v++ = '\n';
+        }
+
         p = ngx_slprintf(p, last, "%V%*s%V",
+                         &hacf->base_url,
+                         ctx->name.len - ctx->var->suffix.len, ctx->name.data,
+                         &var->suffix);
+        v = ngx_slprintf(v, last, "%V%*s%V",
                          &hacf->base_url,
                          ctx->name.len - ctx->var->suffix.len, ctx->name.data,
                          &var->suffix);
         if (hacf->nested) {
             p = ngx_slprintf(p, last, "%s", "/manifest");
+            v = ngx_slprintf(v, last, "%s", "/video");
         }
 
         p = ngx_slprintf(p, last, "%s", ".m3u8\n");
+        v = ngx_slprintf(v, last, "%s", ".m3u8\n");
 
         rc = ngx_write_fd(fd, buffer, p - buffer);
-        rc = ngx_write_fd(video_file_fd, buffer, p - buffer);
+        rc = ngx_write_fd(video_file_fd, buffer, v - buffer);
         if (rc < 0) {
             ngx_log_error(NGX_LOG_ERR, s->connection->log, ngx_errno,
                           "hls: " ngx_write_fd_n " failed '%V'",
