@@ -152,7 +152,7 @@ typedef struct {
 #define CURL_URL "curl -d 'filename=%s&bucket=test-hls-liu&key=/%s/%s' -H 'Content-Type: application/x-www-form-urlencoded' -X POST http://localhost:8080 &"
 // #define CURL_URL "aws s3 cp %s s3://test-hls-liu/demo/%s"
 #define NGX_RTMP_HLS_BUFSIZE           (1024*1024)
-static char*
+static void
 vspfunc(char *type, char *format, ...) {
    va_list aptr;
    char buffer[NGX_RTMP_HLS_BUFSIZE];
@@ -161,7 +161,7 @@ vspfunc(char *type, char *format, ...) {
    va_end(aptr);
 //    char *type = malloc(NGX_RTMP_HLS_BUFSIZE);
    strcpy(type, buffer);
-   return type;
+//    return type;
 }
 
 static char *
@@ -188,30 +188,27 @@ send_akamia(u_char *file_path1, u_char *real_name1)
     strcpy(file_path2, file_path);
     char *bname = strremove(file_path2, "/tmp/hls/");
     char *cmd = malloc(NGX_RTMP_HLS_BUFSIZE);
-    cmd = vspfunc(cmd, CURL_URL, file_path, real_name, bname);
+    vspfunc(cmd, CURL_URL, file_path, real_name, bname);
     int a = system(cmd);
     a++;
-    // char * get_cmd = vspfunc(CURL_GET_URL, bname); 
-    // a = system(get_cmd);
     free(cmd);
     free(file_path2);
     return file_path1;
     // return cmd;
 }
 
-static u_char *
-get_video_file (u_char * file_path1) {
+static void
+get_video_file (char *video_file, u_char * file_path1) {
     char *file_path = (char *) file_path1;
     char *file_path2 = malloc(NGX_RTMP_HLS_BUFSIZE);
     strcpy(file_path2, file_path);
     char *bname = basename(file_path);
     file_path2 = strremove(file_path2, bname);
-    u_char *cmd = (u_char *)vspfunc("%s%s", file_path2, "video.m3u8");
+    vspfunc(video_file, "%s%s", file_path2, "video.m3u8");
     free(file_path2);
-    return cmd;
 }
 
-static char *
+static void
 get_filename1(char *filename1, int fd)
 {
     int MAXSIZE = 0xFFF;
@@ -519,7 +516,6 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
     u_char                   *p, *last, *video, *video_last;
     ssize_t                   rc, video_rc;
     ngx_fd_t                        fd, video_file_fd;
-    u_char                          *video_file;
     ngx_str_t                *arg;
     ngx_uint_t                n, k;
     ngx_rtmp_hls_ctx_t       *ctx;
@@ -541,8 +537,10 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
         return NGX_ERROR;
     }
 
-    video_file = get_video_file(ctx->var_playlist_bak.data);
-    video_file_fd = ngx_open_file(video_file, NGX_FILE_WRONLY,
+    char *video_file = malloc(NGX_RTMP_HLS_BUFSIZE);
+    get_video_file(video_file, ctx->var_playlist_bak.data);
+    u_char *u_video_file = (u_char *) video_file
+    video_file_fd = ngx_open_file(u_video_file, NGX_FILE_WRONLY,
                        NGX_FILE_TRUNCATE, NGX_FILE_DEFAULT_ACCESS);
 
     // ngx_log_error(NGX_LOG_ERR, s->connection->log, ngx_errno,
@@ -650,6 +648,7 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
     ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
                       "S3: '%s'", send_akamia(video_file, ctx->real_name.data));
 
+    free(video_file);
     ngx_memzero(&v, sizeof(v));
     ngx_str_set(&(v.module), "hls");
     v.playlist.data = ctx->playlist.data;
@@ -664,7 +663,7 @@ ngx_rtmp_hls_write_playlist(ngx_rtmp_session_t *s)
     static u_char                   buffer[1024];
     ngx_fd_t                        fd, video_file_fd;
     u_char                         *p, *end;
-    u_char                          *video_file;
+    
     ngx_rtmp_hls_ctx_t             *ctx;
     ssize_t                         n;
     ngx_rtmp_hls_app_conf_t        *hacf;
@@ -686,15 +685,17 @@ ngx_rtmp_hls_write_playlist(ngx_rtmp_session_t *s)
     fd = ngx_open_file(ctx->playlist_bak.data, NGX_FILE_WRONLY,
                        NGX_FILE_TRUNCATE, NGX_FILE_DEFAULT_ACCESS);
 
-    video_file = get_video_file(ctx->playlist_bak.data);
-    video_file_fd = ngx_open_file(video_file, NGX_FILE_APPEND,
+    char *video_file = malloc(NGX_RTMP_HLS_BUFSIZE);
+    get_video_file(video_file, ctx->playlist_bak.data);
+    u_char *u_video_file = (u_char *)video_file;
+    video_file_fd = ngx_open_file(u_video_file, NGX_FILE_APPEND,
                        NGX_FILE_OPEN, NGX_FILE_DEFAULT_ACCESS);
 
     // ngx_log_error(NGX_LOG_ERR, s->connection->log, ngx_errno,
     //                   "hls failed: %u", video_file_fd);
         
     if (video_file_fd == NGX_INVALID_FILE) {
-        video_file_fd = ngx_open_file(video_file, NGX_FILE_APPEND,
+        video_file_fd = ngx_open_file(u_video_file, NGX_FILE_APPEND,
                        NGX_FILE_TRUNCATE, NGX_FILE_DEFAULT_ACCESS);
         is_new_video_file = 1;
     }
@@ -845,6 +846,7 @@ ngx_rtmp_hls_write_playlist(ngx_rtmp_session_t *s)
         return ngx_rtmp_hls_write_variant_playlist(s);
     }
 
+    free(video_file);
     ngx_memzero(&v, sizeof(v));
     ngx_str_set(&(v.module), "hls");
     v.playlist.data = ctx->playlist.data;
@@ -1136,7 +1138,7 @@ ngx_rtmp_hls_close_fragment(ngx_rtmp_session_t *s)
     ngx_rtmp_hls_next_frag(s);
 
     ngx_rtmp_hls_write_playlist(s);
-    free(filename)
+    free(filename);
 
     return NGX_OK;
 }
