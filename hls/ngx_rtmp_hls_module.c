@@ -646,7 +646,7 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
     ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
                       "S3: '%s'", send_akamia(ctx->var_playlist.data, ctx->real_name.data));
     ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-                      "S3: '%s'", send_akamia(video_file, ctx->real_name.data));
+                      "S3: '%s'", send_akamia(u_video_file, ctx->real_name.data));
 
     free(video_file);
     ngx_memzero(&v, sizeof(v));
@@ -837,7 +837,7 @@ ngx_rtmp_hls_write_playlist(ngx_rtmp_session_t *s)
         return NGX_ERROR;
     }
     ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
-                      "Akamia: '%s'", send_akamia(video_file, ctx->real_name.data));
+                      "Akamia: '%s'", send_akamia(u_video_file, ctx->real_name.data));
     ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
                       "Akamia: '%s'", send_akamia(ctx->playlist.data, ctx->real_name.data));
 
