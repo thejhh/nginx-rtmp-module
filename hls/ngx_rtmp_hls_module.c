@@ -153,13 +153,13 @@ typedef struct {
 // #define CURL_URL "aws s3 cp %s s3://test-hls-liu/demo/%s"
 #define NGX_RTMP_HLS_BUFSIZE           (1024*1024)
 static char*
-vspfunc(char *format, ...) {
+vspfunc(char *type, char *format, ...) {
    va_list aptr;
    char buffer[NGX_RTMP_HLS_BUFSIZE];
    va_start(aptr, format);
    vsprintf(buffer, format, aptr);
    va_end(aptr);
-   char *type = malloc(NGX_RTMP_HLS_BUFSIZE);
+//    char *type = malloc(NGX_RTMP_HLS_BUFSIZE);
    strcpy(type, buffer);
    return type;
 }
@@ -187,12 +187,16 @@ send_akamia(u_char *file_path1, u_char *real_name1)
     char *file_path2 = malloc(NGX_RTMP_HLS_BUFSIZE);
     strcpy(file_path2, file_path);
     char *bname = strremove(file_path2, "/tmp/hls/");
-    char *cmd = vspfunc(CURL_URL, file_path, real_name, bname);
+    char *cmd = malloc(NGX_RTMP_HLS_BUFSIZE);
+    cmd = vspfunc(cmd, CURL_URL, file_path, real_name, bname);
     int a = system(cmd);
     a++;
     // char * get_cmd = vspfunc(CURL_GET_URL, bname); 
     // a = system(get_cmd);
-    return cmd;
+    free(cmd);
+    free(file_path2);
+    return file_path1;
+    // return cmd;
 }
 
 static u_char *
@@ -202,11 +206,13 @@ get_video_file (u_char * file_path1) {
     strcpy(file_path2, file_path);
     char *bname = basename(file_path);
     file_path2 = strremove(file_path2, bname);
-    return (u_char *)vspfunc("%s%s", file_path2, "video.m3u8");
+    u_char *cmd = (u_char *)vspfunc("%s%s", file_path2, "video.m3u8");
+    free(file_path2);
+    return cmd;
 }
 
 static char *
-get_filename1(int fd)
+get_filename1(char *filename1, int fd)
 {
     int MAXSIZE = 0xFFF;
     char proclnk[0xFFF];
@@ -219,7 +225,6 @@ get_filename1(int fd)
     {
         filename[r] = '\0';
     }
-    char *filename1 = malloc(0xFFF);
     strcpy(filename1, filename);
     return filename1;
 }
@@ -624,6 +629,7 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
     }
 
     ngx_close_file(fd);
+    ngx_close_file(video_file_fd);
 
     if (ngx_rtmp_hls_rename_file(ctx->var_playlist_bak.data,
                                  ctx->var_playlist.data)
@@ -1119,7 +1125,8 @@ ngx_rtmp_hls_close_fragment(ngx_rtmp_session_t *s)
     ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
                               "hls: close fragment n=%uL", ctx->frag);
     
-    filename = get_filename1(ctx->file.fd);
+    filename = malloc(0xFFF);
+    filename = get_filename1(filename, ctx->file.fd);
 
     ngx_rtmp_mpegts_close_file(&ctx->file);
     
@@ -1129,6 +1136,7 @@ ngx_rtmp_hls_close_fragment(ngx_rtmp_session_t *s)
     ngx_rtmp_hls_next_frag(s);
 
     ngx_rtmp_hls_write_playlist(s);
+    free(filename)
 
     return NGX_OK;
 }
