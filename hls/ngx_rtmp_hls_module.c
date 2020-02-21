@@ -193,7 +193,7 @@ send_akamia(u_char *file_path1, u_char *real_name1)
     a++;
     free(cmd);
     free(file_path2);
-    return file_path1;
+    return file_path;
     // return cmd;
 }
 
@@ -223,7 +223,7 @@ get_filename1(char *filename1, int fd)
         filename[r] = '\0';
     }
     strcpy(filename1, filename);
-    return filename1;
+    // return filename1;
 }
 
 static ngx_conf_enum_t                  ngx_rtmp_hls_naming_slots[] = {
@@ -539,7 +539,7 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
 
     char *video_file = malloc(NGX_RTMP_HLS_BUFSIZE);
     get_video_file(video_file, ctx->var_playlist_bak.data);
-    u_char *u_video_file = (u_char *) video_file
+    u_char *u_video_file = (u_char *) video_file;
     video_file_fd = ngx_open_file(u_video_file, NGX_FILE_WRONLY,
                        NGX_FILE_TRUNCATE, NGX_FILE_DEFAULT_ACCESS);
 
@@ -1128,7 +1128,7 @@ ngx_rtmp_hls_close_fragment(ngx_rtmp_session_t *s)
                               "hls: close fragment n=%uL", ctx->frag);
     
     filename = malloc(0xFFF);
-    filename = get_filename1(filename, ctx->file.fd);
+    get_filename1(filename, ctx->file.fd);
 
     ngx_rtmp_mpegts_close_file(&ctx->file);
     
