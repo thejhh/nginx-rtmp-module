@@ -850,11 +850,11 @@ ngx_rtmp_hls_write_playlist(ngx_rtmp_session_t *s)
                       "Akamia: '%s'", send_akamia(ctx->playlist.data, ctx->real_name.data));
 
     
+    free(video_file);
     if (ctx->var) {
         return ngx_rtmp_hls_write_variant_playlist(s);
     }
 
-    free(video_file);
     ngx_memzero(&v, sizeof(v));
     ngx_str_set(&(v.module), "hls");
     v.playlist.data = ctx->playlist.data;
