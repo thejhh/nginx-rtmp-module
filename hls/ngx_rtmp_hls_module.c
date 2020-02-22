@@ -37,7 +37,6 @@ static ngx_int_t ngx_rtmp_hls_ensure_directory(ngx_rtmp_session_t *s,
        ngx_str_t *path);
 
 
-#define NGX_RTMP_HLS_BUFSIZE            (1024*1024)
 #define NGX_RTMP_HLS_DIR_ACCESS         0744
 
 
@@ -533,7 +532,6 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
         ngx_log_error(NGX_LOG_ERR, s->connection->log, ngx_errno,
                       "hls: " ngx_open_file_n " failed: '%V'",
                       &ctx->var_playlist_bak);
-
         return NGX_ERROR;
     }
 
@@ -547,6 +545,8 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
     //                   "hls failed: %u", video_file_fd);
         
     if (video_file_fd == NGX_INVALID_FILE) {
+        free(video_file);
+        ngx_close_file(video_file_fd);
         return NGX_ERROR;
     }
 
@@ -558,6 +558,8 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
         ngx_log_error(NGX_LOG_ERR, s->connection->log, ngx_errno,
                       "hls: " ngx_write_fd_n " failed: '%V'",
                       &ctx->var_playlist_bak);
+        free(video_file);
+        ngx_close_file(video_file_fd);
         ngx_close_file(fd);
         return NGX_ERROR;
     }
@@ -565,6 +567,7 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
     
     video_rc = ngx_write_fd(video_file_fd, NGX_RTMP_HLS_VAR_HEADER,sizeof(NGX_RTMP_HLS_VAR_HEADER) - 1);    
     if (video_rc < 0) {
+        free(video_file);
         ngx_close_file(video_file_fd);
         return NGX_ERROR;
     }
@@ -618,14 +621,17 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
                           "hls: " ngx_write_fd_n " failed '%V'",
                           &ctx->var_playlist_bak);
             ngx_close_file(fd);
+            free(video_file);
+            ngx_close_file(video_file_fd);
             return NGX_ERROR;
         }
         if (video_rc < 0) {
+            free(video_file);
             ngx_close_file(video_file_fd);
             return NGX_ERROR;
         }
     }
-
+    
     ngx_close_file(fd);
     ngx_close_file(video_file_fd);
 
@@ -636,6 +642,7 @@ ngx_rtmp_hls_write_variant_playlist(ngx_rtmp_session_t *s)
         ngx_log_error(NGX_LOG_ERR, s->connection->log, ngx_errno,
                       "hls: rename failed: '%V'->'%V'",
                       &ctx->var_playlist_bak, &ctx->var_playlist);
+        free(video_file);
         return NGX_ERROR;
     }
 
@@ -685,6 +692,13 @@ ngx_rtmp_hls_write_playlist(ngx_rtmp_session_t *s)
     fd = ngx_open_file(ctx->playlist_bak.data, NGX_FILE_WRONLY,
                        NGX_FILE_TRUNCATE, NGX_FILE_DEFAULT_ACCESS);
 
+    if (fd == NGX_INVALID_FILE) {
+        ngx_log_error(NGX_LOG_ERR, s->connection->log, ngx_errno,
+                      "hls: " ngx_open_file_n " failed: '%V'",
+                      &ctx->playlist_bak);
+        return NGX_ERROR;
+    }
+
     char *video_file = malloc(NGX_RTMP_HLS_BUFSIZE);
     get_video_file(video_file, ctx->playlist_bak.data);
     u_char *u_video_file = (u_char *)video_file;
@@ -698,13 +712,6 @@ ngx_rtmp_hls_write_playlist(ngx_rtmp_session_t *s)
         video_file_fd = ngx_open_file(u_video_file, NGX_FILE_APPEND,
                        NGX_FILE_TRUNCATE, NGX_FILE_DEFAULT_ACCESS);
         is_new_video_file = 1;
-    }
-
-    if (fd == NGX_INVALID_FILE) {
-        ngx_log_error(NGX_LOG_ERR, s->connection->log, ngx_errno,
-                      "hls: " ngx_open_file_n " failed: '%V'",
-                      &ctx->playlist_bak);
-        return NGX_ERROR;
     }
 
     max_frag = hacf->fraglen / 1000;
@@ -834,6 +841,7 @@ ngx_rtmp_hls_write_playlist(ngx_rtmp_session_t *s)
         ngx_log_error(NGX_LOG_ERR, s->connection->log, ngx_errno,
                       "hls: rename failed: '%V'->'%V'",
                       &ctx->playlist_bak, &ctx->playlist);
+        free(video_file);
         return NGX_ERROR;
     }
     ngx_log_error(NGX_LOG_ERR, s->connection->log, 0,
@@ -858,6 +866,8 @@ write_err:
                     "hls: " ngx_write_fd_n " failed '%V'",
                     &ctx->playlist_bak);
     ngx_close_file(fd);
+    ngx_close_file(video_file_fd);
+    free(video_file);
     return NGX_ERROR;
 }
 
