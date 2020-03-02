@@ -837,7 +837,7 @@ ngx_rtmp_hls_write_playlist(ngx_rtmp_session_t *s)
         }
     }
 
-    write(video_file_fd, buf1, strlen(buf1));
+    n = write(video_file_fd, buf1, strlen(buf1));
     ngx_close_file(video_file_fd);
     ngx_close_file(fd);
 
