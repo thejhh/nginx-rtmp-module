@@ -683,7 +683,6 @@ ngx_rtmp_hls_write_playlist(ngx_rtmp_session_t *s)
     ngx_rtmp_playlist_t             v;
     int                             is_new_video_file = 0;
     
-    char buf1[14] = "#EXT-X-ENDLIST";
     ngx_log_error(NGX_LOG_DEBUG, s->connection->log, 0,
                   "hls: write playlist");
 
@@ -748,7 +747,7 @@ ngx_rtmp_hls_write_playlist(ngx_rtmp_session_t *s)
         n = ngx_write_fd(video_file_fd, buffer, p - buffer);
         n = ngx_write_fd(video_file_fd, buf1, strlen(buf1));
     } else {
-        lseek(video_file_fd, -strlen(buf1), SEEK_END); 
+        lseek(video_file_fd, -strlen("#EXT-X-ENDLIST\n"), SEEK_END);
     }
     
 
@@ -837,7 +836,10 @@ ngx_rtmp_hls_write_playlist(ngx_rtmp_session_t *s)
         }
     }
 
-    n = write(video_file_fd, buf1, strlen(buf1));
+    n = ngx_write_fd(video_file_fd, "#EXT-X-ENDLIST\n", strlen("#EXT-X-ENDLIST\n"));
+    if (n < 0) {
+       goto write_err;
+    }
     ngx_close_file(video_file_fd);
     ngx_close_file(fd);
 
