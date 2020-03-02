@@ -745,7 +745,6 @@ ngx_rtmp_hls_write_playlist(ngx_rtmp_session_t *s)
     
     if (is_new_video_file > 0) {
         n = ngx_write_fd(video_file_fd, buffer, p - buffer);
-        n = ngx_write_fd(video_file_fd, buf1, strlen(buf1));
     } else {
         lseek(video_file_fd, -strlen("#EXT-X-ENDLIST\n"), SEEK_END);
     }
