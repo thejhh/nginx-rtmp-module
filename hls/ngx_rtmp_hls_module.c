@@ -154,7 +154,9 @@ typedef struct {
 
 #define CURL_URL "curl -d 'filename=%s&bucket=test-hls-liu&key=/%s/%s' -H 'Content-Type: application/x-www-form-urlencoded' -X POST http://localhost:8080 &"
 // #define CURL_URL "aws s3 cp %s s3://test-hls-liu/demo/%s"
+#ifndef NGX_RTMP_HLS_BUFSIZE
 #define NGX_RTMP_HLS_BUFSIZE           (1024*1024)
+#endif
 static void
 vspfunc(char *type, char *format, ...) {
    va_list aptr;
