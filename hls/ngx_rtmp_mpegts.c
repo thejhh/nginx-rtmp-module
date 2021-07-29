@@ -2,7 +2,13 @@
 /*
  * Copyright (C) Roman Arutyunyan
  */
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+#include <libgen.h>
+#include <stdarg.h>
+#include <unistd.h>
 
 #include <ngx_config.h>
 #include <ngx_core.h>
@@ -119,7 +125,6 @@ static u_char ngx_rtmp_mpegts_header_aac[] = {
 
 /* 700 ms PCR delay */
 #define NGX_RTMP_HLS_DELAY  63000
-
 
 static ngx_int_t
 ngx_rtmp_mpegts_write_file(ngx_rtmp_mpegts_file_t *file, u_char *in,
@@ -458,7 +463,6 @@ ngx_rtmp_mpegts_open_file(ngx_rtmp_mpegts_file_t *file, u_char *path,
         ngx_close_file(file->fd);
         return NGX_ERROR;
     }
-
     return NGX_OK;
 }
 
@@ -479,8 +483,6 @@ ngx_rtmp_mpegts_close_file(ngx_rtmp_mpegts_file_t *file)
             return NGX_ERROR;
         }
     }
-
     ngx_close_file(file->fd);
-
     return NGX_OK;
 }
